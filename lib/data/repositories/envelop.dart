@@ -3,7 +3,7 @@ import 'package:finances/data/sources/envelop.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final envelopRepositoryProvider = Provider((ref) {
-  final apiClient = ref.watch(envelopApiClient);
+  final apiClient = ref.watch(envelopApiClientProvider);
 
   return EnvelopRepository(apiClient: apiClient);
 });
@@ -25,4 +25,19 @@ class EnvelopRepository {
         title: title,
         initAmount: initAmount,
       );
+
+  Future<void> updateEnvelop({
+    required Envelop envelop,
+    required double amount,
+    required bool add,
+  }) async =>
+      _apiClient.updateEnvelop(
+        envelop: envelop,
+        amount: amount,
+        add: add,
+      );
+
+  Stream<List<Envelop>> listenToEnvelops() async* {
+    yield* _apiClient.listenToEnvelops();
+  }
 }

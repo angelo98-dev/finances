@@ -98,8 +98,6 @@ class AddEnvelopBottomSheetState extends ConsumerState<AddEnvelopBottomSheet> {
             onPressed: () async {
               if (_formKey.currentState?.validate() ?? false) {
                 final title = _title.text;
-
-                // TODO(Yannick): add input controler
                 final amount = double.parse(_initAmount.text);
 
                 ref.read(_titleProvider.notifier).update(
@@ -108,7 +106,6 @@ class AddEnvelopBottomSheetState extends ConsumerState<AddEnvelopBottomSheet> {
                 ref.read(_initAmountProvider.notifier).update(
                       (state) => amount,
                     );
-
                 ref.read(_envelopCreateProvider);
 
                 Navigator.pop(context);

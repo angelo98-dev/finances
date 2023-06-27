@@ -1,9 +1,27 @@
 import 'package:finances/data/entities/envelop.dart';
+import 'package:finances/data/repositories/envelop.dart';
 import 'package:finances/widgets/app_form_field.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 
-class TransactionBottomSheet extends StatefulWidget {
+final _amountProvider = StateProvider.autoDispose<double>((ref) => 0);
+final _switchValue = StateProvider.autoDispose<bool>((ref) => false);
+
+final envelopUpdateProvider =
+    FutureProvider.autoDispose.family((ref, Envelop envelop) async {
+  final envelopRepo = ref.watch(envelopRepositoryProvider);
+  final amount = ref.watch(_amountProvider);
+  final switchValue = ref.watch(_switchValue);
+
+  return envelopRepo.updateEnvelop(
+    envelop: envelop,
+    amount: amount,
+    add: switchValue,
+  );
+});
+
+class TransactionBottomSheet extends ConsumerStatefulWidget {
   const TransactionBottomSheet({
     Key? key,
     required this.envelop,
@@ -12,10 +30,11 @@ class TransactionBottomSheet extends StatefulWidget {
   final Envelop envelop;
 
   @override
-  State<TransactionBottomSheet> createState() => _TransactionBottomSheetState();
+  TransactionBottomSheetState createState() => TransactionBottomSheetState();
 }
 
-class _TransactionBottomSheetState extends State<TransactionBottomSheet> {
+class TransactionBottomSheetState
+    extends ConsumerState<TransactionBottomSheet> {
   final _amountControler = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
@@ -27,6 +46,8 @@ class _TransactionBottomSheetState extends State<TransactionBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final switchValue = ref.watch(_switchValue);
+
     return Padding(
       padding: const EdgeInsets.all(
         15,
@@ -40,11 +61,32 @@ class _TransactionBottomSheetState extends State<TransactionBottomSheet> {
               fontWeight: FontWeight.bold,
             ),
           ),
+          Row(
+            children: [
+              const Text(
+                'Ajout',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Switch(
+                  value: switchValue,
+                  onChanged: (value) async =>
+                      ref.read(_switchValue.notifier).update(
+                            (state) => value,
+                          ),
+                ),
+              ),
+            ],
+          ),
           const Gap(15),
           Form(
             key: _formKey,
             child: AppFormField(
-              label: 'Sortie',
+              label: switchValue ? 'Entrée' : 'Sortie',
               obscureText: false,
               semanticLabel: 'Sortie',
               validator: (value) {
@@ -62,12 +104,15 @@ class _TransactionBottomSheetState extends State<TransactionBottomSheet> {
           ElevatedButton(
             onPressed: () async {
               if (_formKey.currentState?.validate() ?? false) {
-                final currtentAmount = widget.envelop.currentAmount;
-                final left = widget.envelop.currentAmount -
-                    double.parse(_amountControler.text);
+                final amount = double.parse(_amountControler.text);
 
-                print('DEBUGG :: $currtentAmount');
-                print('DEBUGG (2) :: ${left}');
+                ref.read(_amountProvider.notifier).update(
+                      (state) => amount,
+                    );
+                ref.read(
+                  envelopUpdateProvider(widget.envelop),
+                );
+
                 Navigator.pop(context);
               }
             },

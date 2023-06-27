@@ -20,10 +20,9 @@ Envelop _$EnvelopFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Envelop {
-  String get id => throw _privateConstructorUsedError;
+  int get id => throw _privateConstructorUsedError;
   double get currentAmount => throw _privateConstructorUsedError;
-  String get title =>
-      throw _privateConstructorUsedError; // required Map<DateTime, double> history,
+  String get title => throw _privateConstructorUsedError;
   double get initAmount => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -36,7 +35,7 @@ abstract class $EnvelopCopyWith<$Res> {
   factory $EnvelopCopyWith(Envelop value, $Res Function(Envelop) then) =
       _$EnvelopCopyWithImpl<$Res, Envelop>;
   @useResult
-  $Res call({String id, double currentAmount, String title, double initAmount});
+  $Res call({int id, double currentAmount, String title, double initAmount});
 }
 
 /// @nodoc
@@ -61,7 +60,7 @@ class _$EnvelopCopyWithImpl<$Res, $Val extends Envelop>
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
-              as String,
+              as int,
       currentAmount: null == currentAmount
           ? _value.currentAmount
           : currentAmount // ignore: cast_nullable_to_non_nullable
@@ -85,7 +84,7 @@ abstract class _$$_EnvelopCopyWith<$Res> implements $EnvelopCopyWith<$Res> {
       __$$_EnvelopCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String id, double currentAmount, String title, double initAmount});
+  $Res call({int id, double currentAmount, String title, double initAmount});
 }
 
 /// @nodoc
@@ -107,7 +106,7 @@ class __$$_EnvelopCopyWithImpl<$Res>
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
-              as String,
+              as int,
       currentAmount: null == currentAmount
           ? _value.currentAmount
           : currentAmount // ignore: cast_nullable_to_non_nullable
@@ -126,23 +125,23 @@ class __$$_EnvelopCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$_Envelop implements _Envelop {
+class _$_Envelop extends _Envelop {
   const _$_Envelop(
       {required this.id,
       required this.currentAmount,
       required this.title,
-      required this.initAmount});
+      required this.initAmount})
+      : super._();
 
   factory _$_Envelop.fromJson(Map<String, dynamic> json) =>
       _$$_EnvelopFromJson(json);
 
   @override
-  final String id;
+  final int id;
   @override
   final double currentAmount;
   @override
   final String title;
-// required Map<DateTime, double> history,
   @override
   final double initAmount;
 
@@ -183,22 +182,23 @@ class _$_Envelop implements _Envelop {
   }
 }
 
-abstract class _Envelop implements Envelop {
+abstract class _Envelop extends Envelop {
   const factory _Envelop(
-      {required final String id,
+      {required final int id,
       required final double currentAmount,
       required final String title,
       required final double initAmount}) = _$_Envelop;
+  const _Envelop._() : super._();
 
   factory _Envelop.fromJson(Map<String, dynamic> json) = _$_Envelop.fromJson;
 
   @override
-  String get id;
+  int get id;
   @override
   double get currentAmount;
   @override
   String get title;
-  @override // required Map<DateTime, double> history,
+  @override
   double get initAmount;
   @override
   @JsonKey(ignore: true)

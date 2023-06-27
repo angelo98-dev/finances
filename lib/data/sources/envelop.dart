@@ -1,69 +1,67 @@
-// ignore_for_file: prefer_const_constructors
-
-import 'package:collection/collection.dart';
 import 'package:finances/data/entities/envelop.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:isar/isar.dart';
+import 'package:path_provider/path_provider.dart';
 
-final envelopApiClient = Provider(
-  (ref) => EnvelopApiClient(),
+final envelopApiClientProvider = Provider(
+  (ref) {
+    return EnvelopApiClient();
+  },
 );
 
 class EnvelopApiClient {
-  List<Envelop> allEnvelops = [
-    Envelop(
-      id: '1',
-      currentAmount: 100,
-      title: 'Nourriture',
-      //currentPercentage: 0.3,
-      initAmount: 500,
-    ),
-    Envelop(
-      id: '2',
-      currentAmount: 300,
-      title: 'Hygiène',
-      // currentPercentage: 0.3,
-      initAmount: 500,
-    ),
-    Envelop(
-      id: '3',
-      currentAmount: 50,
-      title: 'Voyages',
-      //currentPercentage: 0.3,
-      initAmount: 700,
-    ),
-    Envelop(
-      id: '4',
-      currentAmount: 100,
-      title: 'Libéralités',
-      //currentPercentage: 0.6,
-      initAmount: 800,
-    )
-  ];
-
-  Future<List<Envelop>> getAllEnvelop() async {
-    return Future.delayed(Duration(seconds: 3), () {
-      return allEnvelops;
-    });
+  EnvelopApiClient() {
+    instance = openIsarDB();
   }
 
-  Future<void> initEnvelops() async {}
+  late Future<Isar> instance;
 
-  Future<void> transaction({
+  Future<Isar> openIsarDB() async {
+    if (Isar.instanceNames.isEmpty) {
+      final dir = await getApplicationDocumentsDirectory();
+
+      return await Isar.open(
+        [EnvelopSchema],
+        directory: dir.path,
+        name: 'envelop_instance',
+        inspector: true,
+      );
+    }
+
+    return Future.value(Isar.getInstance());
+  }
+
+  Future<List<Envelop>> getAllEnvelop() async {
+    final db = await instance;
+
+    return db.envelops.where().findAll();
+  }
+
+  Stream<List<Envelop>> listenToEnvelops() async* {
+    final db = await instance;
+
+    yield* db.envelops.where().watch(fireImmediately: true);
+  }
+
+  Future<void> updateEnvelop({
     required Envelop envelop,
     required double amount,
     bool add = false,
   }) async {
-    final env = allEnvelops.firstWhereOrNull(
-      (envel) => envel.id == envelop.id,
-    );
-
-    if (env == null) {
-      return;
-    }
-
     final newAmount =
-        add ? env.currentAmount + amount : env.currentAmount - amount;
-    // implement update
+        add ? envelop.currentAmount + amount : envelop.currentAmount - amount;
+
+    final initAmount = add ? envelop.initAmount + amount : envelop.initAmount;
+
+    final updatedEnvelop = envelop.copyWith(
+      currentAmount: newAmount,
+      initAmount: initAmount,
+    );
+    final db = await instance;
+
+    await db.writeTxnSync(() async {
+      db.envelops.putSync(updatedEnvelop);
+    });
   }
 
   Future<void> createEnvelop({
@@ -71,47 +69,16 @@ class EnvelopApiClient {
     required double initAmount,
   }) async {
     final newEnvelop = Envelop(
-      id: 'id',
+      id: Isar.autoIncrement,
       currentAmount: initAmount,
       title: title,
       initAmount: initAmount,
     );
 
-    allEnvelops.add(newEnvelop);
-  }
+    final db = await instance;
 
-  List<Envelop> getEnvelop() {
-    final mesEnvelop = [
-      Envelop(
-        id: '1',
-        currentAmount: 100,
-        title: 'Nourriture',
-        //currentPercentage: 0.3,
-        initAmount: 500,
-      ),
-      Envelop(
-        id: '2',
-        currentAmount: 300,
-        title: 'Hygiène',
-        // currentPercentage: 0.3,
-        initAmount: 500,
-      ),
-      Envelop(
-        id: '3',
-        currentAmount: 50,
-        title: 'Voyages',
-        //currentPercentage: 0.3,
-        initAmount: 700,
-      ),
-      Envelop(
-        id: '4',
-        currentAmount: 100,
-        title: 'Libéralités',
-        //currentPercentage: 0.6,
-        initAmount: 800,
-      ),
-    ];
-
-    return mesEnvelop;
+    await db.writeTxn(() async {
+      await db.envelops.put(newEnvelop);
+    });
   }
 }

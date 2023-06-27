@@ -5,12 +5,14 @@ import 'package:finances/modules/home/widgets/envelop_item.dart';
 import 'package:finances/widgets/app_refresh_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
-final _envelopFetcherProvider = FutureProvider.autoDispose<List<Envelop>>(
-  (ref) async {
+final envelopFetcherProvider = StreamProvider.autoDispose<List<Envelop>>(
+  (ref) async* {
     final envelopRepo = ref.watch(envelopRepositoryProvider);
+    final envelops = envelopRepo.listenToEnvelops();
 
-    return envelopRepo.getAllEnvelop();
+    yield* envelops;
   },
 );
 
@@ -45,7 +47,7 @@ class HomePage extends ConsumerWidget {
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-for
       body: AppRefreshIndicator(
-        onRefresh: () async => ref.refresh(_envelopFetcherProvider),
+        onRefresh: () async => ref.refresh(envelopFetcherProvider),
         child: _HomeInternalView(),
       ),
     );
@@ -55,51 +57,75 @@ class HomePage extends ConsumerWidget {
 class _HomeInternalView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final envelopList = ref.watch(_envelopFetcherProvider);
+    final envelopList = ref.watch(envelopFetcherProvider);
+
+    final now = DateTime.now();
+    final currentMonth = now.day >= 27 ? now.month + 1 : now.month;
+    final month = DateFormat('MMMM').format(
+      DateTime(0, currentMonth),
+    );
 
     return envelopList.when(
-      data: (allEnvelops) => Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(
-              top: 20,
-            ),
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.inversePrimary,
+      data: (allEnvelops) {
+        if (allEnvelops.isEmpty) {
+          return const Center(
+            child: Text(
+              "Empty List. Create a new Envelop",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 25,
               ),
-              child: const Padding(
-                padding: EdgeInsets.all(5),
-                child: Text(
-                  'Juillet',
-                  style: TextStyle(
-                    fontSize: 20,
+            ),
+          );
+        }
+
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(
+                top: 20,
+              ),
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.inversePrimary,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(5),
+                  child: Text(
+                    month,
+                    style: const TextStyle(
+                      fontSize: 20,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          Expanded(
-            child: GridView.count(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 5,
-                vertical: 25,
+            Expanded(
+              child: GridView.count(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 5,
+                  vertical: 25,
+                ),
+                crossAxisCount: 2,
+                crossAxisSpacing: 10,
+                children: allEnvelops
+                    .map(
+                      (envelop) => EnvelopItemView(
+                        envelop: envelop,
+                      ),
+                    )
+                    .toList(),
               ),
-              crossAxisCount: 2,
-              crossAxisSpacing: 10,
-              children: allEnvelops
-                  .map(
-                    (envelop) => EnvelopItemView(
-                      envelop: envelop,
-                    ),
-                  )
-                  .toList(),
             ),
-          ),
-        ],
+          ],
+        );
+      },
+      error: (error, stackTrace) => const Center(
+        child: Text(
+          "Error",
+        ),
       ),
-      error: (error, stackTrace) => const SizedBox.shrink(),
       loading: () => const Center(
         child: CircularProgressIndicator(),
       ),
