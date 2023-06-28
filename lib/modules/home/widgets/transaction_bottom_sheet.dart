@@ -1,3 +1,4 @@
+import 'package:finances/core/theme/text.dart';
 import 'package:finances/data/entities/envelop.dart';
 import 'package:finances/data/repositories/envelop.dart';
 import 'package:finances/widgets/app_form_field.dart';
@@ -47,29 +48,22 @@ class TransactionBottomSheetState
   @override
   Widget build(BuildContext context) {
     final switchValue = ref.watch(_switchValue);
+    final styles = ref.watch(textThemeProvider);
 
     return Padding(
       padding: const EdgeInsets.all(
         15,
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
+          const Gap(15),
+          Text(
             'Transaction',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: styles.h4.primary,
           ),
           Row(
             children: [
-              const Text(
-                'Ajout',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Switch(
@@ -80,18 +74,23 @@ class TransactionBottomSheetState
                           ),
                 ),
               ),
+              const Gap(5),
+              Text(
+                switchValue ? 'Income' : 'Outcome',
+                style: styles.subtitle.primary,
+              ),
             ],
           ),
           const Gap(15),
           Form(
             key: _formKey,
             child: AppFormField(
-              label: switchValue ? 'Entrée' : 'Sortie',
+              label: switchValue ? 'Income' : 'Outcome',
               obscureText: false,
-              semanticLabel: 'Sortie',
+              semanticLabel: switchValue ? 'Income' : 'Outcome',
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Ne dois pas être vide';
+                  return 'Must not be empty';
                 }
                 return null;
               },
@@ -117,9 +116,10 @@ class TransactionBottomSheetState
               }
             },
             child: const Text(
-              'Valider',
+              'Update',
             ),
           ),
+          const Gap(50)
         ],
       ),
     );

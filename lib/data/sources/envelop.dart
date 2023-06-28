@@ -37,6 +37,14 @@ class EnvelopApiClient {
     return db.envelops.where().findAll();
   }
 
+  Future<void> deleteEnvelop(int id) async {
+    final db = await instance;
+
+    return db.writeTxn(() async {
+      db.envelops.delete(id);
+    });
+  }
+
   Stream<List<Envelop>> listenToEnvelops() async* {
     final db = await instance;
 
@@ -52,7 +60,6 @@ class EnvelopApiClient {
         add ? envelop.currentAmount + amount : envelop.currentAmount - amount;
 
     final initAmount = add ? envelop.initAmount + amount : envelop.initAmount;
-
     final updatedEnvelop = envelop.copyWith(
       currentAmount: newAmount,
       initAmount: initAmount,

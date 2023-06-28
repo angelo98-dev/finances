@@ -40,4 +40,6 @@ class EnvelopRepository {
   Stream<List<Envelop>> listenToEnvelops() async* {
     yield* _apiClient.listenToEnvelops();
   }
+
+  Future<void> deleteEnvelop(int id) async => _apiClient.deleteEnvelop(id);
 }

@@ -1,31 +1,39 @@
+import 'package:finances/core/theme/color.dart';
+import 'package:finances/core/theme/text.dart';
 import 'package:finances/modules/home/view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class App extends StatelessWidget {
+class App extends ConsumerWidget {
   const App({
     Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final color = ref.watch(appColorThemeProvider);
+    final styles = ref.watch(textThemeProvider);
+
     return MaterialApp(
-      title: 'Mes Enveloppes',
+      title: 'SpendWise',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromARGB(212, 104, 58, 183),
-        ),
-        useMaterial3: true,
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white,
-            backgroundColor: const Color.fromARGB(212, 104, 58, 183),
-            //a11y button recommandation min height
-            minimumSize: const Size.fromHeight(kMinInteractiveDimension),
+          useMaterial3: true,
+          scaffoldBackgroundColor: color.primary,
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.white,
+              backgroundColor: color.primary,
+              textStyle: styles.subtitle.surface,
+              //a11y button recommandation min height
+              minimumSize: const Size.fromHeight(kMinInteractiveDimension),
+            ),
           ),
-        ),
-      ),
+          floatingActionButtonTheme: FloatingActionButtonThemeData(
+            backgroundColor: const Color(0xFF755EE8),
+            foregroundColor: color.background,
+          )),
       home: const HomePage(
-        title: 'Mes Enveloppes',
+        title: 'SpendWise',
       ),
     );
   }

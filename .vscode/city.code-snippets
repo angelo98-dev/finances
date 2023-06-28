@@ -1,0 +1,199 @@
+{
+
+    "AppAnimationTheme": {
+        "scope": "dart",
+        "prefix": "animations",
+        "description": "Get AppAnimationTheme from context",
+        "body": [
+            "final animations = context.watch<AppAnimationTheme>();"
+        ],
+    },
+    "AppColorTheme": {
+        "scope": "dart",
+        "prefix": "colors",
+        "description": "Get AppColorTheme from context",
+        "body": [
+            "final colors = ref.watch(appColorThemeProvider);"
+        ],
+    },
+    "AppRadiusTheme": {
+        "scope": "dart",
+        "prefix": "radius",
+        "description": "Get AppRadiusTheme from context",
+        "body": [
+            "final radius = context.watch<AppRadiusTheme>();"
+        ],
+    },
+    "AppTextTheme": {
+        "scope": "dart",
+        "prefix": "styles",
+        "description": "Get AppTextTheme from context",
+        "body": [
+            "final styles = ref.watch(textThemeProvider);"
+        ],
+    },
+    "AppSpacingTheme": {
+        "scope": "dart",
+        "prefix": "spacings",
+        "description": "Get AppSpacingTheme from context",
+        "body": [
+            "final spacings = context.watch<AppSpacingTheme>();"
+        ],
+    },
+    "GlyphTheme": {
+        "scope": "dart",
+        "prefix": "glyphs",
+        "description": "Get GlyphTheme from context",
+        "body": [
+            "final glyphs = context.watch<GlyphTheme>();"
+        ],
+    },
+    "CoreGlyphTheme": {
+        "scope": "dart",
+        "prefix": "coreGlyphs",
+        "description": "Get core GlyphTheme from context",
+        "body": [
+            "final coreGlyphs = context.watchCoreGlyphs();"
+        ],
+    },
+    "DrawingTheme": {
+        "scope": "dart",
+        "prefix": "drawings",
+        "description": "Get DrawingTheme from context",
+        "body": [
+            "final drawings = context.watch<DrawingTheme>();"
+        ],
+    },
+    "CoreDrawingTheme": {
+        "scope": "dart",
+        "prefix": "coreDrawings",
+        "description": "Get core DrawingTheme from context",
+        "body": [
+            "final coreDrawings = context.watchCoreDrawings();"
+        ],
+    },
+    "l10n": {
+        "scope": "dart",
+        "prefix": "l10n",
+        "description": "Get l10n from context",
+        "body": [
+            "final l10n = context.l10n;"
+        ],
+    },
+    "screenReaderEnabled": {
+        "scope": "dart",
+        "prefix": "screenReader",
+        "description": "Get the Media query accessible navigation",
+        "body": [
+            "final screenReaderEnabled = context.screenReaderEnabled;"
+        ],
+    },
+    "screenSize":{
+        "scope": "dart",
+        "prefix": "screenSize",
+        "description": "Get screen size",
+        "body": "final screenSize = context.screenSize();"
+    },
+    "coreL10n": {
+        "scope": "dart",
+        "prefix": "coreL10n",
+        "description": "Get core l10n from context",
+        "body": [
+            "final coreL10n = context.coreL10n;"
+        ],
+    },
+    "dart notified async list": {
+		"prefix": "nasynclist",
+		"description": "dart notified async list",
+		"body": [
+			"AsyncList<${1:type}> get async${2:name} => _async${2:name};",
+			"AsyncList<${1:type}> _async${2:name} = const AsyncLoading();",
+			"@protected",
+			"set async${2:name}(AsyncList<${1:type}> value) {",
+			" if (!_async${2:name}.isListEqual(value)) {",
+			" _async${2:name} = value;",
+			" notifyListeners();",
+			" }",
+			"}",
+			""
+		]
+	},
+    "dart notified list": {
+		"prefix": "nlist",
+		"description": "dart notified list",
+		"body": [
+			"List<${1:type}> get ${2:name} => _${2:name};",
+			"$List<${1:type}> _${2:name} = [];",
+			"@protected",
+			"set ${2:name}(List<${1:type}> value) {",
+			" if (!listEquals(_${2:name},value)) {",
+			" _${2:name} = value;",
+			" notifyListeners();",
+			" }",
+			"}",
+			""
+		]
+	},
+    "analytic tags": {
+        "prefix": "analyticTags",
+        "body": [
+            "static const String ${1:tagName} = _prefix + '${1:tagName}';"
+        ]
+    },
+    "analytic classes": {
+        "prefix": "analytic classes",
+        "body": [
+            "class ${1:ServiceName}AnalyticsEvent {",
+            "   static const _prefix = ${1:ServiceName}AnalyticsValue.serviceName + '_';",
+            "",
+            "   ${3:analyticTag}",
+            "}",
+            "",
+            "class ${1:ServiceName}AnalyticsValue {",
+            "   static const String serviceName = '${2:serviceName}';",
+            "}",
+            "",
+        ]
+    },
+    "interpolation": {
+        "prefix": "interpolation",
+        "body": [
+            "'${${1:variable}}',"
+        ]
+    },
+    "dart notified property": {
+		"prefix": "nprop",
+		"description": "dart notified property",
+		"body": [
+			"${1:type} get ${2:name} => _${2:name};",
+			"${1:type} _${2:name};",
+			"@protected",
+			"set ${2:name}(${1:type} value) {",
+			" if (_${2:name} != value) {",
+			" _${2:name} = value;",
+			" notifyListeners();",
+			" }",
+			"}",
+			""
+		]
+	},
+	"freezed entity class": {
+        "prefix": "frzd",
+        "description": "freezed entity class",
+        "body": [
+            "import 'package:freezed_annotation/freezed_annotation.dart';",
+            "",
+            "part '$TM_FILENAME_BASE.freezed.dart';",
+            "part '$TM_FILENAME_BASE.g.dart';",
+            "",
+            "@freezed",
+            "class ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/} with _$${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/} {",
+            "const factory ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}({",
+            "required ${1:type}",
+            "}) = _${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/};",
+            "",
+            "factory ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}.fromJson(Map<String, dynamic> json) => _$${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}FromJson(json);",
+            "}",
+        ]
+    }
+}

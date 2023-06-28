@@ -1,6 +1,8 @@
+import 'package:finances/core/theme/color.dart';
+import 'package:finances/core/theme/text.dart';
 import 'package:finances/data/entities/envelop.dart';
 import 'package:finances/data/repositories/envelop.dart';
-import 'package:finances/modules/home/widgets/add_envelop.dart';
+import 'package:finances/modules/home/widgets/add_envelop_bottom_sheet.dart';
 import 'package:finances/modules/home/widgets/envelop_item.dart';
 import 'package:finances/widgets/app_refresh_indicator.dart';
 import 'package:flutter/material.dart';
@@ -26,29 +28,37 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final style = ref.watch(textThemeProvider);
+    final color = ref.watch(appColorThemeProvider);
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        title: Text(
-          title,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onPrimary,
-          ),
-        ),
+        backgroundColor: color.primary,
+        title: Text(title, style: style.h4.surface),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showModalBottomSheet(
             context: context,
-            builder: (context) => const AddEnvelopBottomSheet(),
+            isDismissible: true,
+            builder: (context) => Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              child: const AddEnvelopBottomSheet(),
+            ),
+            isScrollControlled: true,
           );
         },
-        tooltip: 'Ajout enveloppe',
-        child: const Icon(Icons.add),
+        tooltip: 'Create an Envelope',
+        child: Icon(
+          Icons.add,
+          color: color.neutral0,
+        ),
       ), // This trailing comma makes auto-for
       body: AppRefreshIndicator(
         onRefresh: () async => ref.refresh(envelopFetcherProvider),
-        child: _HomeInternalView(),
+        child: SafeArea(child: _HomeInternalView()),
       ),
     );
   }
@@ -58,22 +68,28 @@ class _HomeInternalView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final envelopList = ref.watch(envelopFetcherProvider);
+    final style = ref.watch(textThemeProvider);
+    final color = ref.watch(appColorThemeProvider);
 
     final now = DateTime.now();
     final currentMonth = now.day >= 27 ? now.month + 1 : now.month;
     final month = DateFormat('MMMM').format(
       DateTime(0, currentMonth),
     );
+    final previousMonth = DateFormat('MMMM').format(
+      DateTime(0, currentMonth - 1),
+    );
 
     return envelopList.when(
       data: (allEnvelops) {
         if (allEnvelops.isEmpty) {
-          return const Center(
-            child: Text(
-              "Empty List. Create a new Envelop",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 25,
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Text(
+                "Empty List. Create a new Envelope",
+                textAlign: TextAlign.center,
+                style: style.h2.surface.normal,
               ),
             ),
           );
@@ -88,15 +104,14 @@ class _HomeInternalView extends ConsumerWidget {
               child: Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.inversePrimary,
+                  color: color.neutral0,
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(5),
+                  padding: const EdgeInsets.only(
+                      top: 10, bottom: 10, left: 10, right: 0),
                   child: Text(
-                    month,
-                    style: const TextStyle(
-                      fontSize: 20,
-                    ),
+                    'Mount of $month | 28/$previousMonth - 28/$month',
+                    style: style.subtitle.primary,
                   ),
                 ),
               ),
@@ -104,11 +119,12 @@ class _HomeInternalView extends ConsumerWidget {
             Expanded(
               child: GridView.count(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 5,
+                  horizontal: 0,
                   vertical: 25,
                 ),
                 crossAxisCount: 2,
-                crossAxisSpacing: 10,
+                childAspectRatio: 0.85,
+                crossAxisSpacing: 2,
                 children: allEnvelops
                     .map(
                       (envelop) => EnvelopItemView(
@@ -118,12 +134,20 @@ class _HomeInternalView extends ConsumerWidget {
                     .toList(),
               ),
             ),
+            Align(
+              alignment: FractionalOffset.bottomCenter,
+              child: Text(
+                '@ByGrace-Dev | 2023',
+                style: style.caption.surface,
+              ),
+            ),
           ],
         );
       },
-      error: (error, stackTrace) => const Center(
+      error: (error, stackTrace) => Center(
         child: Text(
           "Error",
+          style: style.h2.primary.normal,
         ),
       ),
       loading: () => const Center(

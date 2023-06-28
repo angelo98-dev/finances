@@ -1,3 +1,4 @@
+import 'package:finances/core/theme/text.dart';
 import 'package:finances/data/repositories/envelop.dart';
 import 'package:finances/widgets/app_form_field.dart';
 import 'package:flutter/material.dart';
@@ -43,18 +44,19 @@ class AddEnvelopBottomSheetState extends ConsumerState<AddEnvelopBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final styles = ref.watch(textThemeProvider);
+
     return Padding(
       padding: const EdgeInsets.all(
         15,
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
-            'Ajout Envelop',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+          const Gap(15),
+          Text(
+            'Create Envelope',
+            style: styles.h4.primary,
           ),
           const Gap(15),
           Form(
@@ -62,12 +64,12 @@ class AddEnvelopBottomSheetState extends ConsumerState<AddEnvelopBottomSheet> {
             child: Column(
               children: [
                 AppFormField(
-                  label: 'Titre',
+                  label: 'Title',
                   obscureText: false,
-                  semanticLabel: 'Titre',
+                  semanticLabel: 'Title',
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Ne dois pas être vide';
+                      return 'Must not be empty';
                     }
                     return null;
                   },
@@ -77,18 +79,21 @@ class AddEnvelopBottomSheetState extends ConsumerState<AddEnvelopBottomSheet> {
                 ),
                 const Gap(15),
                 AppFormField(
-                  label: 'Montant initial',
+                  label: 'Initial amount',
                   obscureText: false,
-                  semanticLabel: 'Montant initial',
+                  semanticLabel: 'Initial amount',
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Ne dois pas être vide';
+                      return 'Must not be empty';
+                    }
+                    if (double.tryParse(value) == null) {
+                      return 'Not valid.';
                     }
                     return null;
                   },
                   controller: _initAmount,
                   isPassword: false,
-                  inputType: TextInputType.number,
+                  inputType: const TextInputType.numberWithOptions(),
                 ),
               ],
             ),
@@ -112,9 +117,10 @@ class AddEnvelopBottomSheetState extends ConsumerState<AddEnvelopBottomSheet> {
               }
             },
             child: const Text(
-              'Valider',
+              'Create',
             ),
           ),
+          const Gap(50),
         ],
       ),
     );
