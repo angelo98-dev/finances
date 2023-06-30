@@ -125,7 +125,7 @@ class EnvelopItemView extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.all(2),
             child: Container(
-              color: colors.primary,
+              color: colors.black,
               padding: const EdgeInsets.symmetric(
                 horizontal: 5,
                 vertical: 5,
