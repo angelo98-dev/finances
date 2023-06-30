@@ -24,6 +24,7 @@ class AppColorTheme with _$AppColorTheme {
     required Color neutral600,
     required Color neutral400,
     required Color neutral200,
+    required Color black,
     required Color neutral100,
     required Color neutral0,
   }) = _AppColorTheme;
@@ -36,6 +37,7 @@ class AppColorTheme with _$AppColorTheme {
         secondaryVariant: Color(0xFF290423),
         background: Color.fromARGB(255, 217, 219, 236),
         surface: Color(0xFFFFFFFF),
+        black: Colors.black,
         neutral800: Color(0xFF434D61),
         neutral700: Color(0xFF4C576D),
         neutral600: Color(0xFF687693),

@@ -1,6 +1,7 @@
 import 'package:finances/core/theme/color.dart';
 import 'package:finances/core/theme/text.dart';
 import 'package:finances/modules/home/view.dart';
+import 'package:finances/modules/home/widgets/contextual_blur.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,7 +19,7 @@ class App extends ConsumerWidget {
       title: 'SpendWise',
       theme: ThemeData(
           useMaterial3: true,
-          scaffoldBackgroundColor: color.primary,
+          scaffoldBackgroundColor: color.neutral100,
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
               foregroundColor: Colors.white,
@@ -32,8 +33,12 @@ class App extends ConsumerWidget {
             backgroundColor: const Color(0xFF755EE8),
             foregroundColor: color.background,
           )),
-      home: const HomePage(
-        title: 'SpendWise',
+      home: const Material(
+        child: ContextualBlurScope(
+          child: HomePage(
+            title: 'SpendWise',
+          ),
+        ),
       ),
     );
   }

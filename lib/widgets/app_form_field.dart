@@ -1,4 +1,3 @@
-import 'package:finances/core/theme/color.dart';
 import 'package:finances/core/theme/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,7 +31,6 @@ class AppFormField extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colors = ref.watch(appColorThemeProvider);
     final styles = ref.watch(textThemeProvider);
     // Define an alternatif text for the screen reader
     return Semantics(

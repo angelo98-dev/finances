@@ -1,4 +1,5 @@
 import 'package:finances/core/theme/text.dart';
+import 'package:finances/modules/home/widgets/app_gesture_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -71,7 +72,7 @@ class AppDialog extends ConsumerWidget {
                     top: safePrimaryActionLabel != null ? 15 : 0,
                   ),
                   child: Center(
-                    child: GestureDetector(
+                    child: AppGestureBuilder(
                       onTap: secondaryActionCallback,
                       child: Text(
                         safeSecondaryActionLabel,

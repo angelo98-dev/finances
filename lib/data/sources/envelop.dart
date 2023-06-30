@@ -53,21 +53,11 @@ class EnvelopApiClient {
 
   Future<void> updateEnvelop({
     required Envelop envelop,
-    required double amount,
-    bool add = false,
   }) async {
-    final newAmount =
-        add ? envelop.currentAmount + amount : envelop.currentAmount - amount;
-
-    final initAmount = add ? envelop.initAmount + amount : envelop.initAmount;
-    final updatedEnvelop = envelop.copyWith(
-      currentAmount: newAmount,
-      initAmount: initAmount,
-    );
     final db = await instance;
 
     await db.writeTxnSync(() async {
-      db.envelops.putSync(updatedEnvelop);
+      db.envelops.putSync(envelop);
     });
   }
 

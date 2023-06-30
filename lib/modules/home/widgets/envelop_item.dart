@@ -1,20 +1,12 @@
 import 'package:finances/core/theme/color.dart';
 import 'package:finances/core/theme/text.dart';
 import 'package:finances/data/entities/envelop.dart';
-import 'package:finances/data/repositories/envelop.dart';
 import 'package:finances/extensions/envelop.dart';
-import 'package:finances/modules/home/widgets/transaction_bottom_sheet.dart';
-import 'package:finances/widgets/app_dialog.dart';
+import 'package:finances/modules/home/widgets/app_shadow_box.dart';
+import 'package:finances/modules/home/widgets/wave.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-
-final _envelopDeleteProvider =
-    FutureProvider.autoDispose.family((ref, int id) async {
-  final envelopRepo = ref.watch(envelopRepositoryProvider);
-
-  return envelopRepo.deleteEnvelop(id);
-});
 
 class EnvelopItemView extends ConsumerWidget {
   const EnvelopItemView({
@@ -28,108 +20,103 @@ class EnvelopItemView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final remainingPercentage = envelop.getRemainingPercentage();
     final style = ref.watch(textThemeProvider);
-    final color = ref.watch(appColorThemeProvider);
+    final colors = ref.watch(appColorThemeProvider);
 
     return Padding(
-      padding: const EdgeInsets.all(5),
+      padding: const EdgeInsets.all(10),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: InkWell(
-              onTap: () {
-                showModalBottomSheet(
-                  isScrollControlled: true,
-                  isDismissible: true,
-                  context: context,
-                  builder: (context) => Padding(
-                    padding: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).viewInsets.bottom,
-                    ),
-                    child: TransactionBottomSheet(
-                      envelop: envelop,
-                    ),
+            child: AppShadowBox.custom(
+              offset: const Offset(0, 3),
+              backgroundColor: colors.transparent,
+              blurRadius: 10,
+              shadowOpacity: 1,
+              borderRadius: BorderRadius.circular(10),
+              child: DecoratedBox(
+                decoration: ShapeDecoration(
+                  color: colors.surface,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                );
-              },
-              onLongPress: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25),
-                    child: AppDialog(
-                      title: 'Delete',
-                      content: 'Are you sure you want to delete this envelope?',
-                      primaryActionLabel: 'Cancel',
-                      secondaryActionLabel: 'OK',
-                      primaryActionCallback: () => Navigator.pop(context),
-                      secondaryActionCallback: () {
-                        ref.read(
-                          _envelopDeleteProvider(envelop.id),
-                        );
-
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ),
-                );
-              },
-              child: Card(
-                clipBehavior: Clip.hardEdge,
-                child: Stack(
-                  alignment: Alignment.bottomLeft,
-                  children: [
-                    Container(
-                      height: 350,
-                      width: 250,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: color.background,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: Stack(
+                          alignment: Alignment.bottomCenter,
+                          children: [
+                            Container(
+                              width: 250,
+                              height: 250,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: colors.neutral200,
+                              ),
+                            ),
+                            FractionallySizedBox(
+                              heightFactor: remainingPercentage / 100,
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 500),
+                                curve: Curves.easeOutQuad,
+                                child: WaveWidget(
+                                  size: const Size(200, 250),
+                                  yOffset: 0.6,
+                                  color: colors.primary,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.vertical(
+                                        bottom: const Radius.circular(10),
+                                        top: remainingPercentage > 98.5
+                                            ? const Radius.circular(10)
+                                            : const Radius.circular(0),
+                                      ),
+                                      gradient: const LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [
+                                          Color(0xFF846AFF),
+                                          Color(0xFF755EE8),
+                                          Colors.purpleAccent,
+                                          Color.fromARGB(255, 244, 131, 66),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Text(
+                              '${remainingPercentage.toStringAsFixed(1)}%',
+                              style:
+                                  style.caption.withColor(colors.surface).bold,
+                            )
+                          ],
+                        ),
                       ),
-                    ),
-                    FractionallySizedBox(
-                      heightFactor: remainingPercentage / 100,
-                      alignment: Alignment.topCenter,
-                      child: Container(
-                        height: 350,
-                        width: 250,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.vertical(
-                            bottom: const Radius.circular(10),
-                            top: remainingPercentage > 98.5
-                                ? const Radius.circular(10)
-                                : const Radius.circular(0),
-                          ),
-                          gradient: const LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Color(0xFF846AFF),
-                              Color(0xFF755EE8),
-                              Colors.purpleAccent,
-                              Color.fromARGB(255, 244, 131, 66),
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                envelop.title,
+                                style: style.body.primary.light,
+                              ),
+                              Text(
+                                '${envelop.currentAmount}€',
+                                style: style.subtitle.primary.bold,
+                              ),
                             ],
                           ),
                         ),
-                      ),
-                    ),
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            envelop.title,
-                            textAlign: TextAlign.center,
-                            style: style.subtitle.surface.bold,
-                          ),
-                          Text(
-                            '${envelop.currentAmount}€',
-                            style: style.h3.surface.bold.italic,
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -138,7 +125,7 @@ class EnvelopItemView extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.all(2),
             child: Container(
-              color: color.primary,
+              color: colors.primary,
               padding: const EdgeInsets.symmetric(
                 horizontal: 5,
                 vertical: 5,
@@ -149,29 +136,31 @@ class EnvelopItemView extends ConsumerWidget {
                   Row(
                     children: [
                       SizedBox(
-                        width: 100,
+                        width: 90,
                         child: Text(
                           'Init Amount : ',
                           style: style.caption.surface,
                         ),
                       ),
-                      Text(
-                        '${envelop.initAmount}€',
-                        style: style.caption.surface,
+                      Expanded(
+                        child: Text(
+                          '${envelop.initAmount}€',
+                          style: style.caption.surface,
+                        ),
                       )
                     ],
                   ),
                   Row(
                     children: [
                       SizedBox(
-                        width: 100,
+                        width: 90,
                         child: Text(
                           '% Spent : ',
                           style: style.caption.surface,
                         ),
                       ),
                       Text(
-                        '${envelop.getPercentageSpent().toStringAsFixed(2)}%',
+                        '${envelop.getPercentageSpent().toStringAsFixed(1)}%',
                         style: style.caption.surface,
                       )
                     ],
