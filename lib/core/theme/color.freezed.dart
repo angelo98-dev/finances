@@ -28,6 +28,7 @@ mixin _$AppColorTheme {
   Color get neutral600 => throw _privateConstructorUsedError;
   Color get neutral400 => throw _privateConstructorUsedError;
   Color get neutral200 => throw _privateConstructorUsedError;
+  Color get black => throw _privateConstructorUsedError;
   Color get neutral100 => throw _privateConstructorUsedError;
   Color get neutral0 => throw _privateConstructorUsedError;
 
@@ -55,6 +56,7 @@ abstract class $AppColorThemeCopyWith<$Res> {
       Color neutral600,
       Color neutral400,
       Color neutral200,
+      Color black,
       Color neutral100,
       Color neutral0});
 }
@@ -84,6 +86,7 @@ class _$AppColorThemeCopyWithImpl<$Res, $Val extends AppColorTheme>
     Object? neutral600 = null,
     Object? neutral400 = null,
     Object? neutral200 = null,
+    Object? black = null,
     Object? neutral100 = null,
     Object? neutral0 = null,
   }) {
@@ -136,6 +139,10 @@ class _$AppColorThemeCopyWithImpl<$Res, $Val extends AppColorTheme>
           ? _value.neutral200
           : neutral200 // ignore: cast_nullable_to_non_nullable
               as Color,
+      black: null == black
+          ? _value.black
+          : black // ignore: cast_nullable_to_non_nullable
+              as Color,
       neutral100: null == neutral100
           ? _value.neutral100
           : neutral100 // ignore: cast_nullable_to_non_nullable
@@ -169,6 +176,7 @@ abstract class _$$_AppColorThemeCopyWith<$Res>
       Color neutral600,
       Color neutral400,
       Color neutral200,
+      Color black,
       Color neutral100,
       Color neutral0});
 }
@@ -196,6 +204,7 @@ class __$$_AppColorThemeCopyWithImpl<$Res>
     Object? neutral600 = null,
     Object? neutral400 = null,
     Object? neutral200 = null,
+    Object? black = null,
     Object? neutral100 = null,
     Object? neutral0 = null,
   }) {
@@ -248,6 +257,10 @@ class __$$_AppColorThemeCopyWithImpl<$Res>
           ? _value.neutral200
           : neutral200 // ignore: cast_nullable_to_non_nullable
               as Color,
+      black: null == black
+          ? _value.black
+          : black // ignore: cast_nullable_to_non_nullable
+              as Color,
       neutral100: null == neutral100
           ? _value.neutral100
           : neutral100 // ignore: cast_nullable_to_non_nullable
@@ -276,6 +289,7 @@ class _$_AppColorTheme implements _AppColorTheme {
       required this.neutral600,
       required this.neutral400,
       required this.neutral200,
+      required this.black,
       required this.neutral100,
       required this.neutral0});
 
@@ -304,13 +318,15 @@ class _$_AppColorTheme implements _AppColorTheme {
   @override
   final Color neutral200;
   @override
+  final Color black;
+  @override
   final Color neutral100;
   @override
   final Color neutral0;
 
   @override
   String toString() {
-    return 'AppColorTheme(primary: $primary, primaryVariant: $primaryVariant, primaryVariant2: $primaryVariant2, secondary: $secondary, secondaryVariant: $secondaryVariant, background: $background, surface: $surface, neutral800: $neutral800, neutral700: $neutral700, neutral600: $neutral600, neutral400: $neutral400, neutral200: $neutral200, neutral100: $neutral100, neutral0: $neutral0)';
+    return 'AppColorTheme(primary: $primary, primaryVariant: $primaryVariant, primaryVariant2: $primaryVariant2, secondary: $secondary, secondaryVariant: $secondaryVariant, background: $background, surface: $surface, neutral800: $neutral800, neutral700: $neutral700, neutral600: $neutral600, neutral400: $neutral400, neutral200: $neutral200, black: $black, neutral100: $neutral100, neutral0: $neutral0)';
   }
 
   @override
@@ -340,6 +356,7 @@ class _$_AppColorTheme implements _AppColorTheme {
                 other.neutral400 == neutral400) &&
             (identical(other.neutral200, neutral200) ||
                 other.neutral200 == neutral200) &&
+            (identical(other.black, black) || other.black == black) &&
             (identical(other.neutral100, neutral100) ||
                 other.neutral100 == neutral100) &&
             (identical(other.neutral0, neutral0) ||
@@ -361,6 +378,7 @@ class _$_AppColorTheme implements _AppColorTheme {
       neutral600,
       neutral400,
       neutral200,
+      black,
       neutral100,
       neutral0);
 
@@ -385,6 +403,7 @@ abstract class _AppColorTheme implements AppColorTheme {
       required final Color neutral600,
       required final Color neutral400,
       required final Color neutral200,
+      required final Color black,
       required final Color neutral100,
       required final Color neutral0}) = _$_AppColorTheme;
 
@@ -412,6 +431,8 @@ abstract class _AppColorTheme implements AppColorTheme {
   Color get neutral400;
   @override
   Color get neutral200;
+  @override
+  Color get black;
   @override
   Color get neutral100;
   @override

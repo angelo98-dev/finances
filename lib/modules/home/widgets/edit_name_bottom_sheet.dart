@@ -6,23 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 
-final _amountProvider = StateProvider.autoDispose<double>((ref) => 0);
-final _switchValue = StateProvider.autoDispose<bool>((ref) => false);
+final _titleProvider = StateProvider.autoDispose<String>((ref) => '');
 
 final envelopUpdateProvider =
     FutureProvider.autoDispose.family((ref, Envelop envelop) async {
   final envelopRepo = ref.watch(envelopRepositoryProvider);
-  final amount = ref.watch(_amountProvider);
-  final add = ref.watch(_switchValue);
-
-  final newAmount =
-      add ? envelop.currentAmount + amount : envelop.currentAmount - amount;
-
-  final initAmount = add ? envelop.initAmount + amount : envelop.initAmount;
+  final title = ref.watch(_titleProvider);
 
   final updatedEnvelop = envelop.copyWith(
-    currentAmount: newAmount,
-    initAmount: initAmount,
+    title: title,
   );
 
   return envelopRepo.updateEnvelop(
@@ -30,8 +22,8 @@ final envelopUpdateProvider =
   );
 });
 
-class TransactionBottomSheet extends ConsumerStatefulWidget {
-  const TransactionBottomSheet({
+class EditNameBottomSheet extends ConsumerStatefulWidget {
+  const EditNameBottomSheet({
     Key? key,
     required this.envelop,
   }) : super(key: key);
@@ -39,23 +31,27 @@ class TransactionBottomSheet extends ConsumerStatefulWidget {
   final Envelop envelop;
 
   @override
-  TransactionBottomSheetState createState() => TransactionBottomSheetState();
+  EditNameBottomSheetState createState() => EditNameBottomSheetState();
 }
 
-class TransactionBottomSheetState
-    extends ConsumerState<TransactionBottomSheet> {
-  final _amountControler = TextEditingController();
+class EditNameBottomSheetState extends ConsumerState<EditNameBottomSheet> {
+  final _titleControler = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
+  void initState() {
+    super.initState();
+    _titleControler.text = widget.envelop.title;
+  }
+
+  @override
   void dispose() {
-    _amountControler.dispose();
+    _titleControler.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final switchValue = ref.watch(_switchValue);
     final styles = ref.watch(textThemeProvider);
 
     return Padding(
@@ -67,42 +63,23 @@ class TransactionBottomSheetState
         children: [
           const Gap(15),
           Text(
-            'Transaction',
+            'Edit Title',
             style: styles.h4.primary,
-          ),
-          Row(
-            children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Switch(
-                  value: switchValue,
-                  onChanged: (value) async =>
-                      ref.read(_switchValue.notifier).update(
-                            (state) => value,
-                          ),
-                ),
-              ),
-              const Gap(5),
-              Text(
-                switchValue ? 'Income' : 'Outcome',
-                style: styles.subtitle.primary,
-              ),
-            ],
           ),
           const Gap(15),
           Form(
             key: _formKey,
             child: AppFormField(
-              label: switchValue ? 'Income' : 'Outcome',
+              label: 'Titre',
               obscureText: false,
-              semanticLabel: switchValue ? 'Income' : 'Outcome',
+              semanticLabel: 'Titre',
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Must not be empty';
                 }
                 return null;
               },
-              controller: _amountControler,
+              controller: _titleControler,
               isPassword: false,
               inputType: TextInputType.number,
             ),
@@ -111,10 +88,8 @@ class TransactionBottomSheetState
           ElevatedButton(
             onPressed: () async {
               if (_formKey.currentState?.validate() ?? false) {
-                final amount = double.parse(_amountControler.text);
-
-                ref.read(_amountProvider.notifier).update(
-                      (state) => amount,
+                ref.read(_titleProvider.notifier).update(
+                      (state) => _titleControler.text,
                     );
                 ref.read(
                   envelopUpdateProvider(widget.envelop),

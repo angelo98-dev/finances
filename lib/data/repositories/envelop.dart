@@ -28,13 +28,9 @@ class EnvelopRepository {
 
   Future<void> updateEnvelop({
     required Envelop envelop,
-    required double amount,
-    required bool add,
   }) async =>
       _apiClient.updateEnvelop(
         envelop: envelop,
-        amount: amount,
-        add: add,
       );
 
   Stream<List<Envelop>> listenToEnvelops() async* {

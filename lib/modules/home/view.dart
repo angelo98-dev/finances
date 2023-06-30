@@ -3,7 +3,7 @@ import 'package:finances/core/theme/text.dart';
 import 'package:finances/data/entities/envelop.dart';
 import 'package:finances/data/repositories/envelop.dart';
 import 'package:finances/modules/home/widgets/add_envelop_bottom_sheet.dart';
-import 'package:finances/modules/home/widgets/envelop_item.dart';
+import 'package:finances/modules/home/widgets/envelop_title.dart';
 import 'package:finances/widgets/app_refresh_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,8 +33,11 @@ class HomePage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: color.primary,
-        title: Text(title, style: style.h4.surface),
+        backgroundColor: color.surface,
+        title: Text(
+          title,
+          style: style.h4.primary,
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -68,7 +71,7 @@ class _HomeInternalView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final envelopList = ref.watch(envelopFetcherProvider);
-    final style = ref.watch(textThemeProvider);
+    final styles = ref.watch(textThemeProvider);
     final color = ref.watch(appColorThemeProvider);
 
     final now = DateTime.now();
@@ -83,15 +86,22 @@ class _HomeInternalView extends ConsumerWidget {
     return envelopList.when(
       data: (allEnvelops) {
         if (allEnvelops.isEmpty) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Text(
-                "Empty List. Create a new Envelope",
-                textAlign: TextAlign.center,
-                style: style.h2.surface.normal,
+          return Column(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Center(
+                    child: Text(
+                      "Empty List. Create a new Envelope",
+                      textAlign: TextAlign.center,
+                      style: styles.h2.primary.normal,
+                    ),
+                  ),
+                ),
               ),
-            ),
+              const AppCopyRightView(),
+            ],
           );
         }
 
@@ -111,7 +121,7 @@ class _HomeInternalView extends ConsumerWidget {
                       top: 10, bottom: 10, left: 10, right: 0),
                   child: Text(
                     'Mount of $month | 28/$previousMonth - 28/$month',
-                    style: style.subtitle.primary,
+                    style: styles.subtitle.primary,
                   ),
                 ),
               ),
@@ -127,31 +137,44 @@ class _HomeInternalView extends ConsumerWidget {
                 crossAxisSpacing: 2,
                 children: allEnvelops
                     .map(
-                      (envelop) => EnvelopItemView(
+                      (envelop) => EnvelopTile(
                         envelop: envelop,
                       ),
                     )
                     .toList(),
               ),
             ),
-            Align(
-              alignment: FractionalOffset.bottomCenter,
-              child: Text(
-                '@ByGrace-Dev | 2023',
-                style: style.caption.surface,
-              ),
-            ),
+            const AppCopyRightView(),
           ],
         );
       },
       error: (error, stackTrace) => Center(
         child: Text(
           "Error",
-          style: style.h2.primary.normal,
+          style: styles.h2.primary.normal,
         ),
       ),
       loading: () => const Center(
         child: CircularProgressIndicator(),
+      ),
+    );
+  }
+}
+
+class AppCopyRightView extends ConsumerWidget {
+  const AppCopyRightView({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final styles = ref.watch(textThemeProvider);
+
+    return Align(
+      alignment: FractionalOffset.bottomCenter,
+      child: Text(
+        '@ByGrace-Dev | 2023',
+        style: styles.caption.primary.light,
       ),
     );
   }
