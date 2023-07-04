@@ -1,4 +1,4 @@
-import 'package:finances/data/entities/envelop.dart';
+import 'package:finances/data/entities/envelop/envelop.dart';
 
 extension EnvelopExtension on Envelop {
   double getRemainingPercentage() {

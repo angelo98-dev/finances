@@ -1,5 +1,5 @@
 import 'package:finances/core/theme/text.dart';
-import 'package:finances/data/entities/envelop.dart';
+import 'package:finances/data/entities/envelop/envelop.dart';
 import 'package:finances/data/repositories/envelop.dart';
 import 'package:finances/widgets/app_form_field.dart';
 import 'package:flutter/material.dart';
@@ -7,12 +7,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 
 final _amountProvider = StateProvider.autoDispose<double>((ref) => 0);
+final _labelProvider = StateProvider.autoDispose<String>((ref) => '');
 final _switchValue = StateProvider.autoDispose<bool>((ref) => false);
 
 final envelopUpdateProvider =
     FutureProvider.autoDispose.family((ref, Envelop envelop) async {
   final envelopRepo = ref.watch(envelopRepositoryProvider);
   final amount = ref.watch(_amountProvider);
+  final label = ref.watch(_labelProvider);
   final add = ref.watch(_switchValue);
 
   final newAmount =
@@ -45,11 +47,13 @@ class TransactionBottomSheet extends ConsumerStatefulWidget {
 class TransactionBottomSheetState
     extends ConsumerState<TransactionBottomSheet> {
   final _amountControler = TextEditingController();
+  final _labelControler = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
     _amountControler.dispose();
+    _labelControler.dispose();
     super.dispose();
   }
 
@@ -92,19 +96,35 @@ class TransactionBottomSheetState
           const Gap(15),
           Form(
             key: _formKey,
-            child: AppFormField(
-              label: switchValue ? 'Income' : 'Outcome',
-              obscureText: false,
-              semanticLabel: switchValue ? 'Income' : 'Outcome',
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Must not be empty';
-                }
-                return null;
-              },
-              controller: _amountControler,
-              isPassword: false,
-              inputType: TextInputType.number,
+            child: Column(
+              children: [
+                AppFormField(
+                  label: switchValue ? 'Income' : 'Outcome',
+                  obscureText: false,
+                  semanticLabel: switchValue ? 'Income' : 'Outcome',
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Must not be empty';
+                    }
+                    return null;
+                  },
+                  controller: _amountControler,
+                  isPassword: false,
+                  inputType: TextInputType.number,
+                ),
+                const Gap(10),
+                AppFormField(
+                  label: 'Label',
+                  obscureText: false,
+                  semanticLabel: 'Label',
+                  validator: (value) {
+                    return null;
+                  },
+                  controller: _labelControler,
+                  isPassword: false,
+                  inputType: TextInputType.text,
+                ),
+              ],
             ),
           ),
           const Gap(15),
@@ -112,6 +132,10 @@ class TransactionBottomSheetState
             onPressed: () async {
               if (_formKey.currentState?.validate() ?? false) {
                 final amount = double.parse(_amountControler.text);
+
+                ref.read(_labelProvider.notifier).update(
+                      (state) => _labelControler.text,
+                    );
 
                 ref.read(_amountProvider.notifier).update(
                       (state) => amount,
@@ -124,7 +148,7 @@ class TransactionBottomSheetState
               }
             },
             child: const Text(
-              'Update',
+              'Validate',
             ),
           ),
           const Gap(50)

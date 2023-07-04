@@ -1,5 +1,5 @@
 import 'package:finances/core/theme/text.dart';
-import 'package:finances/data/entities/envelop.dart';
+import 'package:finances/data/entities/envelop/envelop.dart';
 import 'package:finances/data/repositories/envelop.dart';
 import 'package:finances/widgets/app_form_field.dart';
 import 'package:flutter/material.dart';

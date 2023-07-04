@@ -1,4 +1,4 @@
-import 'package:finances/data/entities/envelop.dart';
+import 'package:finances/data/entities/envelop/envelop.dart';
 import 'package:finances/data/sources/envelop.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -38,4 +38,8 @@ class EnvelopRepository {
   }
 
   Future<void> deleteEnvelop(int id) async => _apiClient.deleteEnvelop(id);
+
+  Future<void> deleteAll() async => _apiClient.deleteAll();
+
+  Future<void> resetAll() async => _apiClient.resetAll();
 }

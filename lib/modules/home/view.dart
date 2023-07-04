@@ -1,9 +1,11 @@
 import 'package:finances/core/theme/color.dart';
 import 'package:finances/core/theme/text.dart';
-import 'package:finances/data/entities/envelop.dart';
+import 'package:finances/data/entities/envelop/envelop.dart';
 import 'package:finances/data/repositories/envelop.dart';
 import 'package:finances/modules/home/widgets/add_envelop_bottom_sheet.dart';
 import 'package:finances/modules/home/widgets/envelop_title.dart';
+import 'package:finances/notifiers/notifier.dart';
+import 'package:finances/widgets/app_dialog.dart';
 import 'package:finances/widgets/app_refresh_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,6 +19,18 @@ final envelopFetcherProvider = StreamProvider.autoDispose<List<Envelop>>(
     yield* envelops;
   },
 );
+
+final deleteAllProvider = FutureProvider.autoDispose((ref) async {
+  final envelopRepo = ref.watch(envelopRepositoryProvider);
+
+  return envelopRepo.deleteAll();
+});
+
+final resetAllProvider = FutureProvider.autoDispose((ref) async {
+  final envelopRepo = ref.watch(envelopRepositoryProvider);
+
+  return envelopRepo.resetAll();
+});
 
 class HomePage extends ConsumerWidget {
   const HomePage({
@@ -38,6 +52,75 @@ class HomePage extends ConsumerWidget {
           title,
           style: style.h4.primary,
         ),
+        actions: [
+          PopupMenuButton(
+            itemBuilder: (context) {
+              {
+                return [
+                  PopupMenuItem<String>(
+                    value: 'open_reset_all',
+                    child: Text(
+                      'Reset all envelops',
+                      style: style.body.primary,
+                    ),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'open_delete_all_dialog',
+                    child: Text(
+                      'Delete all envelops',
+                      style: style.body.primary,
+                    ),
+                  ),
+                ];
+              }
+            },
+            surfaceTintColor: color.neutral0,
+            onSelected: (value) async {
+              switch (value) {
+                case 'open_delete_all_dialog':
+                  return showDialog(
+                    context: context,
+                    builder: (context) => Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 25),
+                      child: AppDialog(
+                        title: 'Delete all',
+                        content:
+                            'This operation is irreversible. Are you sure you want to delete all the envelops? ',
+                        primaryActionLabel: 'Cancel',
+                        secondaryActionLabel: 'OK',
+                        primaryActionCallback: () => Navigator.pop(context),
+                        secondaryActionCallback: () {
+                          ref.read(deleteAllProvider);
+                          Navigator.pop(context);
+                          return ref.refresh(envelopFetcherProvider);
+                        },
+                      ),
+                    ),
+                  );
+                case 'open_reset_all':
+                  return showDialog(
+                    context: context,
+                    builder: (context) => Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 25),
+                      child: AppDialog(
+                        title: 'Reset all',
+                        content:
+                            'This operation is irreversible. Are you sure you want reset all the envelops? ',
+                        primaryActionLabel: 'Cancel',
+                        secondaryActionLabel: 'OK',
+                        primaryActionCallback: () => Navigator.pop(context),
+                        secondaryActionCallback: () {
+                          ref.read(resetAllProvider);
+                          Navigator.pop(context);
+                          return ref.refresh(envelopFetcherProvider);
+                        },
+                      ),
+                    ),
+                  );
+              }
+            },
+          )
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -70,7 +153,7 @@ class HomePage extends ConsumerWidget {
 class _HomeInternalView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final envelopList = ref.watch(envelopFetcherProvider);
+    final envelopList = ref.watch(envelopsProvider);
     final styles = ref.watch(textThemeProvider);
     final color = ref.watch(appColorThemeProvider);
 
@@ -93,7 +176,7 @@ class _HomeInternalView extends ConsumerWidget {
                   padding: const EdgeInsets.all(10),
                   child: Center(
                     child: Text(
-                      "Empty List. Create a new Envelope",
+                      'Empty List. Create a new Envelope',
                       textAlign: TextAlign.center,
                       style: styles.h2.primary.normal,
                     ),
@@ -150,7 +233,7 @@ class _HomeInternalView extends ConsumerWidget {
       },
       error: (error, stackTrace) => Center(
         child: Text(
-          "Error",
+          'Error',
           style: styles.h2.primary.normal,
         ),
       ),

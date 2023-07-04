@@ -1,6 +1,6 @@
 import 'package:finances/core/theme/color.dart';
 import 'package:finances/core/theme/text.dart';
-import 'package:finances/data/entities/envelop.dart';
+import 'package:finances/data/entities/envelop/envelop.dart';
 import 'package:finances/extensions/envelop.dart';
 import 'package:finances/modules/home/widgets/app_shadow_box.dart';
 import 'package:finances/modules/home/widgets/wave.dart';
