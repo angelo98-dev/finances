@@ -1,4 +1,4 @@
-import 'package:finances/data/entities/envelop.dart';
+import 'package:finances/data/entities/envelop/envelop.dart';
 import 'package:finances/data/repositories/envelop.dart';
 import 'package:finances/modules/home/widgets/app_gesture_builder.dart';
 import 'package:finances/modules/home/widgets/contextual_blur.dart';

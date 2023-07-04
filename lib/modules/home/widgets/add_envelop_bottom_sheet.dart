@@ -1,25 +1,25 @@
 import 'package:finances/core/theme/text.dart';
-import 'package:finances/data/repositories/envelop.dart';
+import 'package:finances/notifiers/notifier.dart';
 import 'package:finances/widgets/app_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 
-final _titleProvider = StateProvider.autoDispose<String>((ref) => '');
-final _initAmountProvider = StateProvider.autoDispose<double>((ref) => 0);
+// final _titleProvider = StateProvider.autoDispose<String>((ref) => '');
+// final _initAmountProvider = StateProvider.autoDispose<double>((ref) => 0);
 
-final _envelopCreateProvider = FutureProvider.autoDispose(
-  (ref) async {
-    final envelopRepo = ref.watch(envelopRepositoryProvider);
-    final title = ref.watch(_titleProvider);
-    final initAmount = ref.watch(_initAmountProvider);
+// final _envelopCreateProvider = FutureProvider.autoDispose(
+//   (ref) async {
+//     final envelopRepo = ref.watch(envelopRepositoryProvider);
+//     final title = ref.watch(_titleProvider);
+//     final initAmount = ref.watch(_initAmountProvider);
 
-    return envelopRepo.createEnvelop(
-      title: title,
-      initAmount: initAmount,
-    );
-  },
-);
+//     return envelopRepo.createEnvelop(
+//       title: title,
+//       initAmount: initAmount,
+//     );
+//   },
+// );
 
 class AddEnvelopBottomSheet extends ConsumerStatefulWidget {
   const AddEnvelopBottomSheet({
@@ -75,7 +75,6 @@ class AddEnvelopBottomSheetState extends ConsumerState<AddEnvelopBottomSheet> {
                   },
                   controller: _title,
                   isPassword: false,
-                  inputType: TextInputType.text,
                 ),
                 const Gap(15),
                 AppFormField(
@@ -93,7 +92,7 @@ class AddEnvelopBottomSheetState extends ConsumerState<AddEnvelopBottomSheet> {
                   },
                   controller: _initAmount,
                   isPassword: false,
-                  inputType: const TextInputType.numberWithOptions(),
+                  inputType: TextInputType.number,
                 ),
               ],
             ),
@@ -105,13 +104,10 @@ class AddEnvelopBottomSheetState extends ConsumerState<AddEnvelopBottomSheet> {
                 final title = _title.text;
                 final amount = double.parse(_initAmount.text);
 
-                ref.read(_titleProvider.notifier).update(
-                      (state) => title,
+                ref.read(envelopsProvider.notifier).addEnvelop(
+                      title: title,
+                      initAmount: amount,
                     );
-                ref.read(_initAmountProvider.notifier).update(
-                      (state) => amount,
-                    );
-                ref.read(_envelopCreateProvider);
 
                 Navigator.pop(context);
               }

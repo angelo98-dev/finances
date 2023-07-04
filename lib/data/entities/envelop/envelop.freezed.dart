@@ -22,7 +22,8 @@ Envelop _$EnvelopFromJson(Map<String, dynamic> json) {
 mixin _$Envelop {
   int get id => throw _privateConstructorUsedError;
   double get currentAmount => throw _privateConstructorUsedError;
-  String get title => throw _privateConstructorUsedError;
+  String get title =>
+      throw _privateConstructorUsedError; //required List<TransactionModel> transaction,
   double get initAmount => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -142,6 +143,7 @@ class _$_Envelop extends _Envelop {
   final double currentAmount;
   @override
   final String title;
+//required List<TransactionModel> transaction,
   @override
   final double initAmount;
 
@@ -198,7 +200,7 @@ abstract class _Envelop extends Envelop {
   double get currentAmount;
   @override
   String get title;
-  @override
+  @override //required List<TransactionModel> transaction,
   double get initAmount;
   @override
   @JsonKey(ignore: true)

@@ -1,6 +1,7 @@
 import 'package:finances/core/theme/color.dart';
 import 'package:finances/core/theme/text.dart';
-import 'package:finances/data/entities/envelop.dart';
+import 'package:finances/data/entities/envelop/envelop.dart';
+import 'package:finances/modules/history/view.dart';
 import 'package:finances/modules/home/widgets/app_gesture_builder.dart';
 import 'package:finances/modules/home/widgets/edit_name_bottom_sheet.dart';
 import 'package:finances/modules/home/widgets/envelop_title.dart';
@@ -33,11 +34,42 @@ class EnvelopPopupView extends ConsumerWidget {
             envelop: envelop,
           ),
           const Gap(10),
+          _HistoryButton(
+            envelop: envelop,
+          ),
+          const Gap(10),
           _DeleteButton(
             envelop: envelop,
             onDelete: onDelete,
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _HistoryButton extends ConsumerWidget {
+  const _HistoryButton({
+    Key? key,
+    required this.envelop,
+  }) : super(key: key);
+
+  final Envelop envelop;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = ref.watch(appColorThemeProvider);
+
+    return _SettingButton(
+      text: 'See The history',
+      textColor: colors.primary,
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return const HistoryView();
+          },
+        ),
       ),
     );
   }
