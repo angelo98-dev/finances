@@ -1,29 +1,196 @@
-# This file configures the analyzer, which statically analyzes Dart code to
-# check for errors, warnings, and lints.
-#
-# The issues identified by the analyzer are surfaced in the UI of Dart-enabled
-# IDEs (https://dart.dev/tools#ides-and-editors). The analyzer can also be
-# invoked from the command line by running `flutter analyze`.
+# Enable all rules by default
+include: all_lint_rules.yaml
+analyzer:
+  plugins:
+    - custom_lint
+  errors:
+    dead_code: warning
+    invalid_use_of_protected_member: error
+    # Otherwise cause the import of all_lint_rules to warn because of some rules conflicts.
+    # The conflicts are fixed in this file instead, so we can safely ignore the warning.
+    included_file_warning: ignore
+    missing_required_param: error
+    missing_return: error
+    await_only_futures: error
+    # https://github.com/rrousselGit/freezed/issues/488
+    invalid_annotation_target: ignore
 
-# The following line activates a set of recommended lints for Flutter apps,
-# packages, and plugins designed to encourage good coding practices.
-include: package:flutter_lints/flutter.yaml
+  exclude:
+    - '**/configs/**/firebase_options.dart'
+    - '**/lib/**/*.freezed.dart'
+    - '**/lib/**/*.graphql.dart'
+    - '**/lib/**/*.g.dart'
+    - '**/build/**'
+    - '**/lib/generated_plugin_registrant.dart'
+    - '**/l10n/*'
+    - 'assets/**'
+    - 'ci/**'
+    - 'coverage/**'
+    - 'graphql/**'
+    - 'templates/**'
+    - 'mydebug_**'
+
+dart_code_metrics:
+  anti-patterns:
+    - long-parameter-list
+    - long-method:
+      exclude:
+        - 'test/**'
+        - /**/build/**
+        - /**/l10n/**
+
+  metrics:
+    cyclomatic-complexity: 20
+    maximum-nesting-level: 5
+    number-of-parameters: 6
+    source-lines-of-code: 100
+  metrics-exclude:
+    - 'test/**'
+    - /**/build/**
+    - /**/l10n/**
+  rules:
+    - newline-before-return
+    - no-boolean-literal-compare
+    - no-equal-then-else
+    - always-remove-listener
+    - avoid-unnecessary-setstate
+    - avoid-wrapping-in-padding
+    - avoid-unnecessary-type-casts
+    - avoid-unrelated-type-assertions
+    - avoid-unused-parameters
+    - prefer-first
+    - prefer-last
+    - prefer-immediate-return
+  rules-exclude:
+    - 'test/**'
+    - /**/build/**
+    - /**/l10n/**
 
 linter:
-  # The lint rules applied to this project can be customized in the
-  # section below to disable rules from the `package:flutter_lints/flutter.yaml`
-  # included above or to enable additional rules. A list of all available lints
-  # and their documentation is published at
-  # https://dart-lang.github.io/linter/lints/index.html.
-  #
-  # Instead of disabling a lint rule for the entire project in the
-  # section below, it can also be suppressed for a single line of code
-  # or a specific dart file by using the `// ignore: name_of_lint` and
-  # `// ignore_for_file: name_of_lint` syntax on the line or in the file
-  # producing the lint.
   rules:
-    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
-    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+    # We prefer having parameters in the same order as fields https://github.com/flutter/flutter/issues/10219
+    always_put_required_named_parameters_first: false
 
-# Additional information about this file can be found at
-# https://dart.dev/guides/language/analysis-options
+    # Depends on your needs
+    always_require_non_null_named_parameters: false
+
+    # Conflicts with `omit_local_variable_types` and other rules.
+    # As per Dart guidelines, we want to avoid unnecessary types to make the code
+    # more readable.
+    # See https://dart.dev/guides/language/effective-dart/design#avoid-type-annotating-initialized-local-variables
+    always_specify_types: false
+
+    # Conflicts with always_specify_types
+    avoid_annotating_with_dynamic: false
+
+    # AVOID defining a class that contains only static members.
+    #
+    # https://dart-lang.github.io/linter/lints/avoid_classes_with_only_static_members.html
+    #
+    # Creating classes with the sole purpose of providing utility or otherwise static methods is discouraged
+    # in effective Dart. Dart allows functions to exist outside of classes for this very reason.
+    # Effective Dart says avoid classes with only static members:
+    # https://dart.dev/guides/language/effective-dart/design#avoid-defining-a-class-that-contains-only-static-members
+    # However, the Flutter style guide says use them when it makes sense:
+    # https://github.com/flutter/flutter/wiki/Style-guide-for-Flutter-repo#begin-global-constant-names-with-prefix-k
+    # Colors is an example of such a class, but they still enable this rule in the repo though, go figure.
+    #
+    # Like Pedantic, we like util and static classes too, so we use them.
+    # We tried the Effective Dart style and used a of kConstants in different const files. This
+    # is more cumbersome to use than static classes. The import is simpler with static classes and
+    # the code looks cleaner. If you use a lot of constant files, importing them is more tedious,
+    # and you cannot enforce a given 'as' name to have a consistent name space prefix. A static
+    # class gives you that automatically, thus providing context for the constants and static functions.
+    avoid_classes_with_only_static_members: false
+
+    # Only useful when targeting JS runtime
+    avoid_double_and_int_checks: false
+
+    # Improve readbility
+    avoid_function_literals_in_foreach_calls: false
+
+    # Only useful when targeting JS runtime
+    avoid_js_rounded_ints: false
+
+    # We prefer having typedef (discussion in https://github.com/flutter/flutter/pull/16356)
+    avoid_private_typedef_functions: false
+
+    # Can be useful to have a more readable code
+    avoid_types_on_closure_parameters: false
+
+    # Can be difficult to read in some cases
+    cascade_invocations: false
+
+    # Not reliable enough
+    close_sinks: false
+
+    # Blocked on https://github.com/flutter/flutter/issues/20765
+    comment_references: false
+
+    # Not useful for public properties for a constructor
+    diagnostic_describe_all_properties: false
+
+    # Can be useful to have a more readable code
+    join_return_with_assignment: false
+
+    # Not useful for comments
+    lines_longer_than_80_chars: false
+
+    # Too many false positives: https://github.com/dart-lang/sdk/issues/34181
+    literal_only_boolean_expressions: false
+
+    # Can be useful to have a more readable code
+    omit_local_variable_types: false
+
+    # Too many false positives
+    one_member_abstracts: false
+
+    # Issue: https://github.com/flutter/flutter/issues/5792
+    only_throw_errors: false
+
+    # Issue: https://github.com/dart-lang/language/issues/32
+    prefer_mixin: false
+
+    # Intelissence do the jobs for constructors.
+    prefer_asserts_with_message: false
+
+    # More readable
+    prefer_relative_imports: false
+
+    # Conflicts with `prefer_single_quotes`
+    # Single quotes are easier to type and don't compromise on readability.
+    prefer_double_quotes: false
+
+    # Conflicts with https://github.com/flutter/flutter/wiki/Style-guide-for-Flutter-repo#consider-using--for-short-functions-and-methods
+    # Not quite suitable for Flutter, which may have a `build` method with a single
+    # return, but that return is still complex enough that a "body" is worth it.
+    prefer_expression_function_bodies: false
+
+    # While very useful for packages, it is too tiresome to apply for private projects.
+    # Disabling it avoid redundant comments like:
+    # // The counter
+    # int count;
+    public_member_api_docs: false
+
+    # The team will do it manually with specific project conventions.
+    sort_pub_dependencies: false
+
+    # Too many false positives
+    unawaited_futures: false
+
+    # Has false positives: https://github.com/dart-lang/linter/issues/498
+    unnecessary_lambdas: false
+
+    # Has false positives: https://github.com/dart-lang/sdk/issues/34182
+    use_string_buffers: false
+
+    # Not useful for our case
+    use_super_parameters: false
+
+    # Has false positives, so we prefer to catch this by code-review
+    use_to_and_as_if_applicable: false
+
+    # Incompatible with `prefer_final_locals`
+    # Having immutable local variables makes larger functions more predictible
+    # so we will use `prefer_final_locals` instead.
+    unnecessary_final: false
