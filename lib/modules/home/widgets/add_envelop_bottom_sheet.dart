@@ -5,22 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 
-// final _titleProvider = StateProvider.autoDispose<String>((ref) => '');
-// final _initAmountProvider = StateProvider.autoDispose<double>((ref) => 0);
-
-// final _envelopCreateProvider = FutureProvider.autoDispose(
-//   (ref) async {
-//     final envelopRepo = ref.watch(envelopRepositoryProvider);
-//     final title = ref.watch(_titleProvider);
-//     final initAmount = ref.watch(_initAmountProvider);
-
-//     return envelopRepo.createEnvelop(
-//       title: title,
-//       initAmount: initAmount,
-//     );
-//   },
-// );
-
 class AddEnvelopBottomSheet extends ConsumerStatefulWidget {
   const AddEnvelopBottomSheet({
     Key? key,

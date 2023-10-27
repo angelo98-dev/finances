@@ -1,36 +1,14 @@
 import 'package:finances/core/theme/color.dart';
 import 'package:finances/core/theme/text.dart';
-import 'package:finances/data/entities/envelop/envelop.dart';
-import 'package:finances/data/repositories/envelop.dart';
 import 'package:finances/modules/home/widgets/add_envelop_bottom_sheet.dart';
-import 'package:finances/modules/home/widgets/envelop_title.dart';
+import 'package:finances/modules/home/widgets/envelop_tile.dart';
+import 'package:finances/modules/reports/view.dart';
 import 'package:finances/notifiers/notifier.dart';
 import 'package:finances/widgets/app_dialog.dart';
 import 'package:finances/widgets/app_refresh_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-
-final envelopFetcherProvider = StreamProvider.autoDispose<List<Envelop>>(
-  (ref) async* {
-    final envelopRepo = ref.watch(envelopRepositoryProvider);
-    final envelops = envelopRepo.listenToEnvelops();
-
-    yield* envelops;
-  },
-);
-
-final deleteAllProvider = FutureProvider.autoDispose((ref) async {
-  final envelopRepo = ref.watch(envelopRepositoryProvider);
-
-  return envelopRepo.deleteAll();
-});
-
-final resetAllProvider = FutureProvider.autoDispose((ref) async {
-  final envelopRepo = ref.watch(envelopRepositoryProvider);
-
-  return envelopRepo.resetAll();
-});
 
 class HomePage extends ConsumerWidget {
   const HomePage({
@@ -52,74 +30,8 @@ class HomePage extends ConsumerWidget {
           title,
           style: style.h4.primary,
         ),
-        actions: [
-          PopupMenuButton(
-            itemBuilder: (context) {
-              {
-                return [
-                  PopupMenuItem<String>(
-                    value: 'open_reset_all',
-                    child: Text(
-                      'Reset all envelops',
-                      style: style.body.primary,
-                    ),
-                  ),
-                  PopupMenuItem<String>(
-                    value: 'open_delete_all_dialog',
-                    child: Text(
-                      'Delete all envelops',
-                      style: style.body.primary,
-                    ),
-                  ),
-                ];
-              }
-            },
-            surfaceTintColor: color.neutral0,
-            onSelected: (value) async {
-              switch (value) {
-                case 'open_delete_all_dialog':
-                  return showDialog(
-                    context: context,
-                    builder: (context) => Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 25),
-                      child: AppDialog(
-                        title: 'Delete all',
-                        content:
-                            'This operation is irreversible. Are you sure you want to delete all the envelops? ',
-                        primaryActionLabel: 'Cancel',
-                        secondaryActionLabel: 'OK',
-                        primaryActionCallback: () => Navigator.pop(context),
-                        secondaryActionCallback: () {
-                          ref.read(deleteAllProvider);
-                          Navigator.pop(context);
-                          return ref.refresh(envelopFetcherProvider);
-                        },
-                      ),
-                    ),
-                  );
-                case 'open_reset_all':
-                  return showDialog(
-                    context: context,
-                    builder: (context) => Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 25),
-                      child: AppDialog(
-                        title: 'Reset all',
-                        content:
-                            'This operation is irreversible. Are you sure you want reset all the envelops? ',
-                        primaryActionLabel: 'Cancel',
-                        secondaryActionLabel: 'OK',
-                        primaryActionCallback: () => Navigator.pop(context),
-                        secondaryActionCallback: () {
-                          ref.read(resetAllProvider);
-                          Navigator.pop(context);
-                          return ref.refresh(envelopFetcherProvider);
-                        },
-                      ),
-                    ),
-                  );
-              }
-            },
-          )
+        actions: const [
+          _PopMenuButton(),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -143,9 +55,102 @@ class HomePage extends ConsumerWidget {
         ),
       ), // This trailing comma makes auto-for
       body: AppRefreshIndicator(
-        onRefresh: () async => ref.refresh(envelopFetcherProvider),
+        onRefresh: () async {
+          // ref.refresh(envelopFetcherProvider)
+        },
         child: SafeArea(child: _HomeInternalView()),
       ),
+    );
+  }
+}
+
+class _PopMenuButton extends ConsumerWidget {
+  const _PopMenuButton();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = ref.watch(appColorThemeProvider);
+    final styles = ref.watch(textThemeProvider);
+
+    return PopupMenuButton(
+      itemBuilder: (context) {
+        {
+          return [
+            PopupMenuItem<String>(
+              value: 'open_report',
+              child: Text(
+                'Reports',
+                style: styles.body.primary,
+              ),
+            ),
+            PopupMenuItem<String>(
+              value: 'open_reset_all',
+              child: Text(
+                'Reset all envelops',
+                style: styles.body.primary,
+              ),
+            ),
+            PopupMenuItem<String>(
+              value: 'open_delete_all_dialog',
+              child: Text(
+                'Delete all envelops',
+                style: styles.body.primary,
+              ),
+            ),
+          ];
+        }
+      },
+      surfaceTintColor: colors.neutral0,
+      onSelected: (value) async {
+        switch (value) {
+          case 'open_delete_all_dialog':
+            return showDialog(
+              context: context,
+              builder: (context) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 25),
+                child: AppDialog(
+                  title: 'Delete all',
+                  content:
+                      'This operation is irreversible. Are you sure you want to delete all the envelops? ',
+                  primaryActionLabel: 'Cancel',
+                  secondaryActionLabel: 'OK',
+                  primaryActionCallback: () => Navigator.pop(context),
+                  secondaryActionCallback: () {
+                    ref.read(envelopsProvider.notifier).deleteAll();
+
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+            );
+          case 'open_reset_all':
+            return showDialog(
+              context: context,
+              builder: (context) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 25),
+                child: AppDialog(
+                  title: 'Reset all',
+                  content:
+                      'This operation is irreversible. Are you sure you want reset all the envelops? ',
+                  primaryActionLabel: 'Cancel',
+                  secondaryActionLabel: 'OK',
+                  primaryActionCallback: () => Navigator.pop(context),
+                  secondaryActionCallback: () {
+                    ref.read(envelopsProvider.notifier).resetAll();
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+            );
+          case 'open_report':
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const Reports(),
+              ),
+            );
+        }
+      },
     );
   }
 }
@@ -212,7 +217,6 @@ class _HomeInternalView extends ConsumerWidget {
             Expanded(
               child: GridView.count(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 0,
                   vertical: 25,
                 ),
                 crossAxisCount: 2,

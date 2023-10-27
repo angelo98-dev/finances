@@ -1,4 +1,5 @@
-import 'package:finances/data/entities/envelop/envelop.dart';
+import 'package:finances/data/entities/freezed_entities/envelop_model/envelop_model.dart';
+import 'package:finances/data/entities/mapper/envelop_mapper.dart';
 import 'package:finances/data/sources/envelop.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -15,7 +16,12 @@ class EnvelopRepository {
 
   final EnvelopApiClient _apiClient;
 
-  Future<List<Envelop>> getAllEnvelop() async => _apiClient.getAllEnvelop();
+  Future<List<EnvelopModel>> getAllEnvelop() async =>
+      _apiClient.getAllEnvelop().then(
+            (envelops) => envelops
+                .map((envelop) => EnvelopMapper.fromDbEntity(envelop))
+                .toList(),
+          );
 
   Future<void> createEnvelop({
     required String title,
@@ -27,15 +33,11 @@ class EnvelopRepository {
       );
 
   Future<void> updateEnvelop({
-    required Envelop envelop,
+    required EnvelopModel envelop,
   }) async =>
       _apiClient.updateEnvelop(
-        envelop: envelop,
+        envelop: envelop.toDbEntity(),
       );
-
-  Stream<List<Envelop>> listenToEnvelops() async* {
-    yield* _apiClient.listenToEnvelops();
-  }
 
   Future<void> deleteEnvelop(int id) async => _apiClient.deleteEnvelop(id);
 
