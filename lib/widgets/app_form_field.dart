@@ -45,6 +45,7 @@ class AppFormField extends ConsumerWidget {
         obscureText: obscureText,
         style: styles.subtitle.primary,
         decoration: InputDecoration(
+         
           border: const OutlineInputBorder(
             borderRadius: BorderRadius.all(
               Radius.circular(8),

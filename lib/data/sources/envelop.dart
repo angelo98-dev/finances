@@ -1,4 +1,7 @@
-import 'package:finances/data/entities/envelop/envelop.dart';
+import 'package:finances/data/entities/db_entities/envelop/envelop.dart';
+import 'package:finances/data/entities/freezed_entities/transaction_model/transaction_model.dart';
+import 'package:finances/data/entities/mapper/envelop_mapper.dart';
+import 'package:finances/data/entities/mapper/transaction_mapper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
@@ -20,11 +23,10 @@ class EnvelopApiClient {
     if (Isar.instanceNames.isEmpty) {
       final dir = await getApplicationDocumentsDirectory();
 
-      return await Isar.open(
+      return Isar.open(
         [EnvelopSchema],
         directory: dir.path,
         name: 'envelop_instance',
-        inspector: true,
       );
     }
 
@@ -57,13 +59,28 @@ class EnvelopApiClient {
 
     final envelops = await db.envelops.where().findAll();
 
-    final newEnvelops = envelops
-        .map(
-          (env) => env.copyWith(
-            currentAmount: env.initAmount,
+    final newEnvelops = envelops.map(
+      (env) {
+        final envelop = EnvelopMapper.fromDbEntity(env);
+
+        final transactions = [
+          ...envelop.transactions,
+          TransactionModel(
+            date: DateTime.now(),
+            isOutcome: false,
+            amount: env.initAmount,
+            label: 'Init Amount',
           ),
-        )
-        .toList();
+        ];
+
+        return env.copyWith(
+          currentAmount: env.initAmount,
+          transactions: transactions
+              .map((transaction) => transaction.transactionDbEntity())
+              .toList(),
+        );
+      },
+    ).toList();
 
     return db.writeTxnSync(
       () async {
@@ -92,12 +109,12 @@ class EnvelopApiClient {
     required String title,
     required double initAmount,
   }) async {
-    final newEnvelop = Envelop(
-      id: Isar.autoIncrement,
-      currentAmount: initAmount,
-      title: title,
-      initAmount: initAmount,
-    );
+    final newEnvelop = Envelop()
+      ..id = Isar.autoIncrement
+      ..currentAmount = initAmount
+      ..initAmount = initAmount
+      ..title = title
+      ..transactions = [];
 
     final db = await instance;
 

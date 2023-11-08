@@ -1,13 +1,14 @@
 import 'package:finances/core/theme/text.dart';
 import 'package:finances/data/entities/freezed_entities/envelop_model/envelop_model.dart';
+import 'package:finances/data/entities/freezed_entities/transaction_model/transaction_model.dart';
 import 'package:finances/notifiers/notifier.dart';
 import 'package:finances/widgets/app_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 
-class EditNameBottomSheet extends ConsumerStatefulWidget {
-  const EditNameBottomSheet({
+class SetInitAmountBottomSheet extends ConsumerStatefulWidget {
+  const SetInitAmountBottomSheet({
     Key? key,
     required this.envelop,
   }) : super(key: key);
@@ -15,22 +16,24 @@ class EditNameBottomSheet extends ConsumerStatefulWidget {
   final EnvelopModel envelop;
 
   @override
-  EditNameBottomSheetState createState() => EditNameBottomSheetState();
+  SetInitAmountBottomSheetState createState() =>
+      SetInitAmountBottomSheetState();
 }
 
-class EditNameBottomSheetState extends ConsumerState<EditNameBottomSheet> {
-  final _titleControler = TextEditingController();
+class SetInitAmountBottomSheetState
+    extends ConsumerState<SetInitAmountBottomSheet> {
+  final _amountControler = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
-    _titleControler.text = widget.envelop.title;
+    _amountControler.text = widget.envelop.initAmount.toString();
   }
 
   @override
   void dispose() {
-    _titleControler.dispose();
+    _amountControler.dispose();
     super.dispose();
   }
 
@@ -47,32 +50,48 @@ class EditNameBottomSheetState extends ConsumerState<EditNameBottomSheet> {
         children: [
           const Gap(15),
           Text(
-            'Edit Title',
+            'Set Init Amount',
             style: styles.h4.primary,
           ),
           const Gap(15),
           Form(
             key: _formKey,
             child: AppFormField(
-              label: 'Titre',
+              label: 'Init Amount',
               obscureText: false,
-              semanticLabel: 'Titre',
+              semanticLabel: 'Init Amount',
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Must not be empty';
                 }
                 return null;
               },
-              controller: _titleControler,
+              controller: _amountControler,
               isPassword: false,
+              inputType: TextInputType.number,
             ),
           ),
           const Gap(15),
           ElevatedButton(
             onPressed: () async {
               if (_formKey.currentState?.validate() ?? false) {
+                final amount = double.parse(_amountControler.text);
+                final envelop = widget.envelop;
+
+                final transactions = [
+                  ...envelop.transactions,
+                  TransactionModel(
+                    date: DateTime.now(),
+                    isOutcome: false,
+                    amount: amount,
+                    label: 'Init Amount',
+                  ),
+                ];
+
                 final updatedEnvelop = widget.envelop.copyWith(
-                  title: _titleControler.text,
+                  initAmount: amount,
+                  transactions: transactions,
+                  currentAmount: amount,
                 );
 
                 ref.read(envelopsProvider.notifier).updateEnvelop(

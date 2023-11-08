@@ -1,36 +1,14 @@
 import 'package:finances/core/theme/text.dart';
-import 'package:finances/data/entities/envelop/envelop.dart';
-import 'package:finances/data/repositories/envelop.dart';
+import 'package:finances/data/entities/freezed_entities/envelop_model/envelop_model.dart';
+import 'package:finances/data/entities/freezed_entities/transaction_model/transaction_model.dart';
+import 'package:finances/extensions/envelop.dart';
+import 'package:finances/notifiers/notifier.dart';
 import 'package:finances/widgets/app_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 
-final _amountProvider = StateProvider.autoDispose<double>((ref) => 0);
-final _labelProvider = StateProvider.autoDispose<String>((ref) => '');
 final _switchValue = StateProvider.autoDispose<bool>((ref) => false);
-
-final envelopUpdateProvider =
-    FutureProvider.autoDispose.family((ref, Envelop envelop) async {
-  final envelopRepo = ref.watch(envelopRepositoryProvider);
-  final amount = ref.watch(_amountProvider);
-  final label = ref.watch(_labelProvider);
-  final add = ref.watch(_switchValue);
-
-  final newAmount =
-      add ? envelop.currentAmount + amount : envelop.currentAmount - amount;
-
-  final initAmount = add ? envelop.initAmount + amount : envelop.initAmount;
-
-  final updatedEnvelop = envelop.copyWith(
-    currentAmount: newAmount,
-    initAmount: initAmount,
-  );
-
-  return envelopRepo.updateEnvelop(
-    envelop: updatedEnvelop,
-  );
-});
 
 class TransactionBottomSheet extends ConsumerStatefulWidget {
   const TransactionBottomSheet({
@@ -38,7 +16,7 @@ class TransactionBottomSheet extends ConsumerStatefulWidget {
     required this.envelop,
   }) : super(key: key);
 
-  final Envelop envelop;
+  final EnvelopModel envelop;
 
   @override
   TransactionBottomSheetState createState() => TransactionBottomSheetState();
@@ -74,6 +52,13 @@ class TransactionBottomSheetState
             'Transaction',
             style: styles.h4.primary,
           ),
+          if (widget.envelop.getRemainingPercentage() < 35)
+            Align(
+              child: Text(
+                "Il ne te reste plus beaucoup d'argent. Sois sage et pense à économiser !",
+                style: styles.caption.withColor(Colors.red),
+              ),
+            ),
           Row(
             children: [
               Align(
@@ -122,7 +107,6 @@ class TransactionBottomSheetState
                   },
                   controller: _labelControler,
                   isPassword: false,
-                  inputType: TextInputType.text,
                 ),
               ],
             ),
@@ -133,16 +117,35 @@ class TransactionBottomSheetState
               if (_formKey.currentState?.validate() ?? false) {
                 final amount = double.parse(_amountControler.text);
 
-                ref.read(_labelProvider.notifier).update(
-                      (state) => _labelControler.text,
-                    );
+                final add = ref.read(_switchValue);
+                final envelop = widget.envelop;
+                final newAmount = add
+                    ? envelop.currentAmount + amount
+                    : envelop.currentAmount - amount;
+                final label = _labelControler.text;
 
-                ref.read(_amountProvider.notifier).update(
-                      (state) => amount,
-                    );
-                ref.read(
-                  envelopUpdateProvider(widget.envelop),
+                final initAmount =
+                    add ? envelop.initAmount + amount : envelop.initAmount;
+
+                final transactions = [
+                  ...envelop.transactions,
+                  TransactionModel(
+                    date: DateTime.now(),
+                    isOutcome: !add,
+                    amount: amount,
+                    label: label,
+                  ),
+                ];
+
+                final updatedEnvelop = envelop.copyWith(
+                  currentAmount: newAmount,
+                  initAmount: initAmount,
+                  transactions: transactions,
                 );
+
+                ref
+                    .read(envelopsProvider.notifier)
+                    .updateEnvelop(envelop: updatedEnvelop);
 
                 Navigator.pop(context);
               }

@@ -1,25 +1,20 @@
-import 'package:finances/data/entities/envelop/envelop.dart';
+import 'package:finances/data/entities/freezed_entities/envelop_model/envelop_model.dart';
 import 'package:finances/data/repositories/envelop.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-// We are using NotifierProvider to allow the UI to interact with
-// our EnvelopsNotifier class.
-final envelopsProvider = AsyncNotifierProvider<EnvelopsNotifier, List<Envelop>>(
+final envelopsProvider =
+    AsyncNotifierProvider<EnvelopsNotifier, List<EnvelopModel>>(
   () => EnvelopsNotifier(),
 );
 
-// The Notifier class that will be passed to our NotifierProvider.
-// This class should not expose state outside of its "state" property, which means
-// no public getters/properties!
-// The public methods on this class will be what allow the UI to modify the state.
-class EnvelopsNotifier extends AsyncNotifier<List<Envelop>> {
+class EnvelopsNotifier extends AsyncNotifier<List<EnvelopModel>> {
   @override
-  Future<List<Envelop>> build() {
+  Future<List<EnvelopModel>> build() {
     // Load initial envelop list from the remote repository
     return _getAllEnvelop();
   }
 
-  Future<List<Envelop>> _getAllEnvelop() async {
+  Future<List<EnvelopModel>> _getAllEnvelop() async {
     final repository = ref.read(envelopRepositoryProvider);
 
     return repository.getAllEnvelop();
@@ -37,6 +32,60 @@ class EnvelopsNotifier extends AsyncNotifier<List<Envelop>> {
       await repository.createEnvelop(
         title: title,
         initAmount: initAmount,
+      );
+
+      return _getAllEnvelop();
+    });
+  }
+
+  Future<void> deleteEnvelop({
+    required int id,
+  }) async {
+    state = const AsyncLoading();
+
+    state = await AsyncValue.guard(() async {
+      final repository = ref.read(envelopRepositoryProvider);
+
+      await repository.deleteEnvelop(id);
+
+      return _getAllEnvelop();
+    });
+  }
+
+  Future<void> deleteAll() async {
+    state = const AsyncLoading();
+
+    state = await AsyncValue.guard(() async {
+      final repository = ref.read(envelopRepositoryProvider);
+
+      await repository.deleteAll();
+
+      return _getAllEnvelop();
+    });
+  }
+
+  Future<void> resetAll() async {
+    state = const AsyncLoading();
+
+    state = await AsyncValue.guard(() async {
+      final repository = ref.read(envelopRepositoryProvider);
+
+      await repository.resetAll();
+
+      return _getAllEnvelop();
+    });
+  }
+
+  Future<void> updateEnvelop({
+    required EnvelopModel envelop,
+  }) async {
+    state = const AsyncLoading();
+
+    state = await AsyncValue.guard(() async {
+      final repository = ref.read(envelopRepositoryProvider);
+
+      await repository.updateEnvelop(
+        envelop: envelop,
       );
 
       return _getAllEnvelop();

@@ -18,21 +18,22 @@ class App extends ConsumerWidget {
     return MaterialApp(
       title: 'SpendWise',
       theme: ThemeData(
-          useMaterial3: true,
-          scaffoldBackgroundColor: color.neutral100,
-          elevatedButtonTheme: ElevatedButtonThemeData(
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.white,
-              backgroundColor: color.primary,
-              textStyle: styles.subtitle.surface,
-              //a11y button recommandation min height
-              minimumSize: const Size.fromHeight(kMinInteractiveDimension),
-            ),
+        useMaterial3: true,
+        scaffoldBackgroundColor: color.neutral100,
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white,
+            backgroundColor: color.primary,
+            textStyle: styles.subtitle.surface,
+            //a11y button recommandation min height
+            minimumSize: const Size.fromHeight(kMinInteractiveDimension),
           ),
-          floatingActionButtonTheme: FloatingActionButtonThemeData(
-            backgroundColor: const Color(0xFF755EE8),
-            foregroundColor: color.background,
-          )),
+        ),
+        floatingActionButtonTheme: FloatingActionButtonThemeData(
+          backgroundColor: const Color(0xFF755EE8),
+          foregroundColor: color.background,
+        ),
+      ),
       home: const Material(
         child: ContextualBlurScope(
           child: HomePage(

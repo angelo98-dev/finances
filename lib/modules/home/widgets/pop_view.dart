@@ -1,10 +1,11 @@
 import 'package:finances/core/theme/color.dart';
 import 'package:finances/core/theme/text.dart';
-import 'package:finances/data/entities/envelop/envelop.dart';
+import 'package:finances/data/entities/freezed_entities/envelop_model/envelop_model.dart';
 import 'package:finances/modules/history/view.dart';
 import 'package:finances/modules/home/widgets/app_gesture_builder.dart';
 import 'package:finances/modules/home/widgets/edit_name_bottom_sheet.dart';
-import 'package:finances/modules/home/widgets/envelop_title.dart';
+import 'package:finances/modules/home/widgets/envelop_tile.dart';
+import 'package:finances/modules/home/widgets/set_init_amount_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -16,7 +17,7 @@ class EnvelopPopupView extends ConsumerWidget {
     required this.onDelete,
   }) : super(key: key);
 
-  final Envelop envelop;
+  final EnvelopModel envelop;
   final VoidCallback onDelete;
 
   @override
@@ -42,7 +43,43 @@ class EnvelopPopupView extends ConsumerWidget {
             envelop: envelop,
             onDelete: onDelete,
           ),
+          const Gap(10),
+          _SetInitAmount(
+            envelop: envelop,
+          )
         ],
+      ),
+    );
+  }
+}
+
+class _SetInitAmount extends ConsumerWidget {
+  const _SetInitAmount({
+    Key? key,
+    required this.envelop,
+  }) : super(key: key);
+
+  final EnvelopModel envelop;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = ref.watch(appColorThemeProvider);
+
+    return _SettingButton(
+      text: 'Set Init Amount',
+      textColor: colors.primary,
+      onTap: () => showModalBottomSheet(
+        isScrollControlled: true,
+        isDismissible: true,
+        context: context,
+        builder: (context) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: SetInitAmountBottomSheet(
+            envelop: envelop,
+          ),
+        ),
       ),
     );
   }
@@ -54,7 +91,7 @@ class _HistoryButton extends ConsumerWidget {
     required this.envelop,
   }) : super(key: key);
 
-  final Envelop envelop;
+  final EnvelopModel envelop;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -67,7 +104,9 @@ class _HistoryButton extends ConsumerWidget {
         context,
         MaterialPageRoute(
           builder: (context) {
-            return const HistoryView();
+            return HistoryView(
+              envelop: envelop,
+            );
           },
         ),
       ),
@@ -81,7 +120,7 @@ class _EditButton extends ConsumerWidget {
     required this.envelop,
   }) : super(key: key);
 
-  final Envelop envelop;
+  final EnvelopModel envelop;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -113,7 +152,7 @@ class _DeleteButton extends ConsumerWidget {
     required this.envelop,
     required this.onDelete,
   }) : super(key: key);
-  final Envelop envelop;
+  final EnvelopModel envelop;
 
   final VoidCallback onDelete;
 

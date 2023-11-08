@@ -1,6 +1,7 @@
 import 'package:finances/core/theme/color.dart';
 import 'package:finances/core/theme/text.dart';
-import 'package:finances/data/entities/envelop/envelop.dart';
+import 'package:finances/data/entities/freezed_entities/envelop_model/envelop_model.dart';
+import 'package:finances/extensions/double.dart';
 import 'package:finances/extensions/envelop.dart';
 import 'package:finances/modules/home/widgets/app_shadow_box.dart';
 import 'package:finances/modules/home/widgets/wave.dart';
@@ -14,7 +15,7 @@ class EnvelopItemView extends ConsumerWidget {
     required this.envelop,
   });
 
-  final Envelop envelop;
+  final EnvelopModel envelop;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -71,17 +72,13 @@ class EnvelopItemView extends ConsumerWidget {
                                         bottom: const Radius.circular(10),
                                         top: remainingPercentage > 98.5
                                             ? const Radius.circular(10)
-                                            : const Radius.circular(0),
+                                            : Radius.zero,
                                       ),
-                                      gradient: const LinearGradient(
+                                      gradient: LinearGradient(
                                         begin: Alignment.topLeft,
                                         end: Alignment.bottomRight,
-                                        colors: [
-                                          Color(0xFF846AFF),
-                                          Color(0xFF755EE8),
-                                          Colors.purpleAccent,
-                                          Color.fromARGB(255, 244, 131, 66),
-                                        ],
+                                        colors: remainingPercentage
+                                            .getColorGradient(),
                                       ),
                                     ),
                                   ),
